@@ -1,6 +1,6 @@
 ---
-title: "Example Manuscript Template for a Data Analysis Project"
-author: ""
+title: "The Clinicopathological Features and Survival Outcomes of Patients with Different Metastatic Sites in Stage IV Endometrial Cancer:A SEER-Based Cohort Study"
+author: "Mohammed Zuber"
 format:
   docx:
     toc: false
@@ -28,20 +28,15 @@ library(knitr)
 
 **Authors**  
 
-* First Autor$^{1,2,*}$ (ORCID: 0000-0000-1234-5678) 
-* Second Author$^{3, *}$
-* Third Autor$^{3, \dagger}$
-* Last Author$^{1, 2, \land}$ 
+* Mohammed Zuber$^{1,}$ (ORCID: 0000-0000-1234-5678) 
+
 
 **Author affiliations**  
 
-1. College of Public Health, University of Georgia, Athens, GA, USA.
-2. Another Affiliation, Athens, GA, USA.
-3. Yet another Affiliation.
+1. College of Pharmacy, University of Georgia, Athens, GA, USA.
 
-$*$ These authors contributed equally to this work.
 
-$\land$ Corresponding author: some@email.com
+$\land$ Corresponding author: mohammedzuber099@gmail.com
 
 $\dagger$ Disclaimer: The opinions expressed in this article are the
 author's own and don't reflect their employer.
@@ -63,11 +58,18 @@ _Write a summary of your project._
 ## General Background Information
 _Provide enough background on your topic that others can understand the why and how of your analysis_ 
 
+
 ## Description of data and data source
 _Describe what the data is, what it contains, where it is from, etc. Eventually this might be part of a methods section._
+This study will utilize the Surveillance, Epidemiology, and End Results (SEER) database, one of the most comprehensive cancer incidence and survival registries, covering over 48% of the United States. SEER collects key demographic data, cancer characteristics, treatment details, and survival outcomes. Managed by the U.S. National Cancer Institute, the database began recording information on lung, bone, liver, and brain metastases in 2010. Data for this study will be accessed through SEER*Stat 8.4.4 software, using the SEER Research Data (2000–2019) from 17 registries.
 
 ## Questions/Hypotheses to be addressed
 _State the research questions you plan to answer with this analysis._
+
+_Question_ What are the clinicopathological features and survival outcomes of patients with different metastatic sites in stage IV endometrial cancer? 
+
+_Hypothesis_ Patients with stage IV endometrial cancer exhibit distinct clinicopathological characteristics and survival outcomes based on the site of metastasis. Specifically, metastases to different organ sites (e.g., lung, liver, bone, and brain) are associated with varying prognostic implications, with some metastatic patterns demonstrating significantly poorer survival compared to others. By analyzing data from the SEER database, we hypothesize that certain metastatic sites will be linked to more aggressive tumor behavior and worse overall survival, highlighting potential differences in disease progression and treatment response.
+
 
 To cite other work (important everywhere, but likely happens first in introduction), make sure your references are in the bibtex file specified in the YAML header above and have the right bibtex key. Then you can include like this:
 
@@ -81,7 +83,7 @@ Examples of reproducible research projects can for instance be found in [@mckay2
 # Methods 
 
 _Describe your methods. That should describe the data, the cleaning processes, and the analysis approaches. You might want to provide a shorter description here and all the details in the supplement._
-
+This study examines survival outcomes in stage IV endometrial cancer using SEER data. The primary outcomes include survival months, cause-specific death classification, and vital status at study cutoff. Key predictors include age, race, income, year of diagnosis, and presence of differnt metastasis status.
 
 ## Schematic of workflow
 
@@ -108,7 +110,7 @@ _Write code that reads in the file and cleans it so it's ready for analysis. Sin
 
 ## Statistical analysis
 _Explain anything related to your statistical analyses._
-
+ The analysis aims to identify survival differences based on metastatic patterns, demographic disparities, socioeconomic influences, and temporal trends in prognosis. Kaplan-Meier survival analysis will used to compare the survival among the study cohorts. The incidence of metastasis will be calculated in stage IV endometrial cancer. A Cox regression model will be performed to compute the adjusted Hazard Ratios (aHR) and 95% confidence intervals (CI).
 
 {{< pagebreak >}}
 
