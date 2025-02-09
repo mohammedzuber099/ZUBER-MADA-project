@@ -57,11 +57,23 @@ _Write a summary of your project._
 
 ## General Background Information
 _Provide enough background on your topic that others can understand the why and how of your analysis_ 
+Endometrial cancer, a neoplasm originating from the endometrial lining, is the most common gynecological cancer in the United States.[@Monk2022] According to American Cancer Society 2024 statistics the incidence of uterine cancer is 67, 880 with 13,250 deaths. Due to its early symptomatic presentation, 70% of cases are diagnosed at stage I, where the five-year survival rate exceeds 90%. However, around 13% of patients are diagnosed at advanced stages (III/IV).
 
+A retrospective study found that the prevalence of stage IVB endometrial cancer increased to 5.67% between 2010 and 2015. Unlike stage I, which has a favorable prognosis, stage IV is associated with poor outcomes, with a five-year survival rate ranging from 17% to 30%. The most frequent metastatic sites include the peritoneum, lungs, pelvic and para-aortic lymph nodes, and local pelvic recurrences. Among these, lung metastasis is one of the most common distant metastases, occurring in 1.5% of patients. The hematogenous spread is the primary mechanism of lung metastasis. Depending on clinical features, disease stage, prior surgical history, and pathological factors, 11-13% of endometrial cancer patients experience recurrence within the first two years after initial treatment. Symptoms of lung metastasis typically include coughing up blood, shortness of breath, chest pain, persistent cough, pleural effusion, reduced appetite, and weight loss.
+
+Compared to other gynecological cancers such as cervical and ovarian cancer, endometrial carcinoma exhibits the highest rate of pulmonary metastasis, affecting up to 20-25% of patients who experience recurrence. According to Mao et al., 2020, the five-year cancer-specific survival (CSS) rate for liver and brain metastases was 21%, while bone metastases had a survival rate of 20%. In patients with lung metastases, the median overall survival was 11 months, with a five-year CSS rate of 19%. However, this data specifically pertains to stage IV lung cancer patients.
+
+Patients with advanced endometrial cancer face poor survival outcomes, with metastatic disease being the leading cause of mortality. Therefore, this study aimed to utilize data from the Surveillance, Epidemiology, and End Results (SEER) database to analyze survival outcomes in patients diagnosed with stage IV endometrial cancer. The primary objective was to determine whether the presence of lung/brain/bone/liver metastases in adults with stage IV endometrial cancer is associated with worse survival outcomes compared to patients without any metastasis.
+
+Please note the references are not yet added and will be added soon. 
 
 ## Description of data and data source
 _Describe what the data is, what it contains, where it is from, etc. Eventually this might be part of a methods section._
 This study will utilize the Surveillance, Epidemiology, and End Results (SEER) database, one of the most comprehensive cancer incidence and survival registries, covering over 48% of the United States. SEER collects key demographic data, cancer characteristics, treatment details, and survival outcomes. Managed by the U.S. National Cancer Institute, the database began recording information on lung, bone, liver, and brain metastases in 2010. Data for this study will be accessed through SEER*Stat 8.4.4 software, using the SEER Research Data (2000–2019) from 17 registries.
+
+The extracted variables include age, race, income, American Joint Committee on Cancer (AJCC) stage, year of cancer diagnosis, lung metastasis (yes/no), brain metastasis (yes/no), liver metastasis(yes/no), brain metastasis (yes/no), cause of death, survival months, vital status (dead/alive), rural/urban classification. 
+
+
 
 ## Questions/Hypotheses to be addressed
 _State the research questions you plan to answer with this analysis._
@@ -102,11 +114,19 @@ knitr::include_graphics(here("assets","antigen-recognition.png"))
 
 ## Data aquisition
 _As applicable, explain where and how you got the data. If you directly import the data from an online source, you can combine this section with the next._
+The data was extracted from SEER*Stat 8.4.4 software, using the SEER Research Data (2000–2019) from 17 registries. The following inclusion criteria was used to extract the data (1) primary site, C54.1–9 and C55.9 based on International Classification of Tumor Diseases for Oncology (ICD-O) codes; (2) year of diagnosis 2010-2015; (3) AJCC stage IV; (4) age more than 18 years.
 
+
+The SEER database provided data on both demographic and clinical characteristics of the patients. The demographic variables included age at diagnosis, race, median household income (inflation-adjusted to 2019), year of diagnosis, and Derived AJCC Stage Group (7th edition, 2010-2015). The clinical variables comprised lung, brain, bone, and liver metastasis status, survival duration (in months), SEER cause-specific death classification, and vital status recode (used for study cutoff determination).
+
+Age will be categorized into four groups: 18-39, 40-59, 60-79, and ≥80 years. Race is classified into Asian or Pacific Islander, American Indian or Alaska Native, Black, and White. The income variable will be divided into six brackets: < $35,000, $35,000 - $44,999, $45,000 - $54,999, $55,000 - $64,999, $65,000 - $74,999, and $75,000+. The SEER cause-specific death classification was preferred over all-cause mortality to ensure that only deaths specifically attributed to endometrial cancer will be included in the analysis.
 
 ## Data import and cleaning
 _Write code that reads in the file and cleans it so it's ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g. as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along._
 
+Endometrial cancer cases will be extracted from the SEER database. Patients with an unknown lung/brain/bone/liver metastasis status will be excluded. Individuals under 18 years of age will be removed from the dataset. Additionally, patients whose cause of death is unrelated to endometrial cancer or whose cause of death is missing or unknown will not be included in the analysis. Cases diagnosed at AJCC stages I to III will be excluded from the study. The final cohort will be categorized into 5 groups:  lung metastasis, brain metastasis, bone metastasis, liver metastasis and no metastasis.
+
+The data cleaning process has not yet started. The R code will be provided as the analysis completed. 
 
 ## Statistical analysis
 _Explain anything related to your statistical analyses._
