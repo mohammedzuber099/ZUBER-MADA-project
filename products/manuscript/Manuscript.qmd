@@ -8,16 +8,19 @@ format:
     highlight-style: github
 bibliography: ../../assets/dataanalysis-references.bib
 csl: ../../assets/american-journal-of-epidemiology.csl
+editor: 
+  markdown: 
+    wrap: sentence
 ---
 
-
-
-
-The structure below is one possible setup for a manuscript, or a general data analysis project (including the course project). Adjust as needed. 
+The structure below is one possible setup for a manuscript, or a general data analysis project (including the course project).
+Adjust as needed.
 You don't need to have exactly these sections, but the content covering those sections should be addressed.
 
-This uses MS Word as output format. [See here](https://quarto.org/docs/output-formats/ms-word.html) for more information. You can switch to other formats, like html or pdf. See [the Quarto documentation](https://quarto.org/) for other formats.
-
+This uses MS Word as output format.
+[See here](https://quarto.org/docs/output-formats/ms-word.html) for more information.
+You can switch to other formats, like html or pdf.
+See [the Quarto documentation](https://quarto.org/) for other formats.
 
 ```{r, echo=FALSE, message=FALSE}
 # load a few R packages
@@ -25,141 +28,195 @@ library(here)
 library(knitr)
 ```
 
+**Authors**
 
-**Authors**  
+-   Mohammed Zuber$^{1,}$ (ORCID: 0000-0000-1234-5678)
 
-* Mohammed Zuber$^{1,}$ (ORCID: 0000-0000-1234-5678) 
+**Author affiliations**
 
+1.  College of Pharmacy, University of Georgia, Athens, GA, USA.
 
-**Author affiliations**  
+$\land$ Corresponding author: mohammedzuber099\@gmail.com
 
-1. College of Pharmacy, University of Georgia, Athens, GA, USA.
-
-
-$\land$ Corresponding author: mohammedzuber099@gmail.com
-
-$\dagger$ Disclaimer: The opinions expressed in this article are the
-author's own and don't reflect their employer.
-
+$\dagger$ Disclaimer: The opinions expressed in this article are the author's own and don't reflect their employer.
 
 {{< pagebreak >}}
-
-
 
 # Summary/Abstract
-_Write a summary of your project._
 
+*Write a summary of your project.*
 
 {{< pagebreak >}}
 
-
-# Introduction 
+# Introduction
 
 ## General Background Information
-_Provide enough background on your topic that others can understand the why and how of your analysis_ 
-Endometrial cancer, a neoplasm originating from the endometrial lining, is the most common gynecological cancer in the United States. According to American Cancer Society 2024 statistics the incidence of uterine cancer is 67, 880 with 13,250 deaths. Due to its early symptomatic presentation, 70% of cases are diagnosed at stage I, where the five-year survival rate exceeds 90%. However, around 13% of patients are diagnosed at advanced stages (III/IV).
 
-A retrospective study found that the prevalence of stage IVB endometrial cancer increased to 5.67% between 2010 and 2015. Unlike stage I, which has a favorable prognosis, stage IV is associated with poor outcomes, with a five-year survival rate ranging from 17% to 30%. The most frequent metastatic sites include the peritoneum, lungs, pelvic and para-aortic lymph nodes, and local pelvic recurrences. Among these, lung metastasis is one of the most common distant metastases, occurring in 1.5% of patients. The hematogenous spread is the primary mechanism of lung metastasis. Depending on clinical features, disease stage, prior surgical history, and pathological factors, 11-13% of endometrial cancer patients experience recurrence within the first two years after initial treatment. Symptoms of lung metastasis typically include coughing up blood, shortness of breath, chest pain, persistent cough, pleural effusion, reduced appetite, and weight loss.
+Endometrial cancer, a neoplasm originating from the endometrial lining, is the most common gynecological cancer in the United States.[@Monk2022; @MORICE20161094] According to American Cancer Society 2024 statistics the incidence of uterine cancer is 67, 880 with 13,250 deaths.
+Due to its early symptomatic presentation, 70% of cases are diagnosed at stage I, where the five-year survival rate exceeds 90%.
+[@MORICE20161094; @Galaal14] However, around 13% of patients are diagnosed at advanced stages (III/IV).[@Galaal14]
 
-Compared to other gynecological cancers such as cervical and ovarian cancer, endometrial carcinoma exhibits the highest rate of pulmonary metastasis, affecting up to 20-25% of patients who experience recurrence. According to Mao et al., 2020, the five-year cancer-specific survival (CSS) rate for liver and brain metastases was 21%, while bone metastases had a survival rate of 20%. In patients with lung metastases, the median overall survival was 11 months, with a five-year CSS rate of 19%. However, this data specifically pertains to stage IV lung cancer patients.
+A retrospective study found that the prevalence of stage IVB endometrial cancer increased to 5.67% between 2010 and 2015.[@Guo2020] Unlike stage I, which has a favorable prognosis, stage IV is associated with poor outcomes, with a five-year survival rate ranging from 17% to 30%.[@Carvalho2020] The most frequent metastatic sites include the peritoneum, lungs, pelvic and para-aortic lymph nodes, and local pelvic recurrences.[@DeNardo2023] Among these, lung metastasis is one of the most common distant metastases, occurring in 1.5% of patients.[@Mao2020] The hematogenous spread is the primary mechanism of lung metastasis.[@Ballon1979] Depending on clinical features, disease stage, prior surgical history, and pathological factors, 11-13% of endometrial cancer patients experience recurrence within the first two years after initial treatment.
+Symptoms of lung metastasis typically include coughing up blood, shortness of breath, chest pain, persistent cough, pleural effusion, reduced appetite, and weight loss.[@Jamil2025]
 
-Patients with advanced endometrial cancer face poor survival outcomes, with metastatic disease being the leading cause of mortality. Therefore, this study aimed to utilize data from the Surveillance, Epidemiology, and End Results (SEER) database to analyze survival outcomes in patients diagnosed with stage IV endometrial cancer. The primary objective was to determine whether the presence of lung/brain/bone/liver metastases in adults with stage IV endometrial cancer is associated with worse survival outcomes compared to patients without any metastasis.
-
-Please note the references are not yet added and will be added soon. 
+Compared to other gynecological cancers such as cervical and ovarian cancer, endometrial carcinoma exhibits the highest rate of pulmonary metastasis, affecting up to 20-25% of patients who experience recurrence.
+According to Mao et al., 2020, the five-year cancer-specific survival (CSS) rate for liver and brain metastases was 21%, while bone metastases had a survival rate of 20%.
+In patients with lung metastases, the median overall survival was 11 months, with a five-year CSS rate of 19%.
+However, this data specifically pertains to stage IV lung cancer patients.[@Mao2020] Patients with advanced endometrial cancer face poor survival outcomes, with metastatic disease being the leading cause of mortality.
+[@Amant2005] Therefore, this study aimed to utilize data from the Surveillance, Epidemiology, and End Results (SEER) database to analyze survival outcomes in patients diagnosed with stage IV endometrial cancer.
+The primary objective was to determine whether the presence of lung/brain/bone/liver metastases in adults with stage IV endometrial cancer is associated with worse survival outcomes compared to patients without any metastasis.
 
 ## Description of data and data source
-_Describe what the data is, what it contains, where it is from, etc. Eventually this might be part of a methods section._
-This study will utilize the Surveillance, Epidemiology, and End Results (SEER) database, one of the most comprehensive cancer incidence and survival registries, covering over 48% of the United States. SEER collects key demographic data, cancer characteristics, treatment details, and survival outcomes. Managed by the U.S. National Cancer Institute, the database began recording information on lung, bone, liver, and brain metastases in 2010. Data for this study will be accessed through SEER*Stat 8.4.4 software, using the SEER Research Data (2000–2019) from 17 registries.
 
-The extracted variables include age, race, income, American Joint Committee on Cancer (AJCC) stage, year of cancer diagnosis, lung metastasis (yes/no), brain metastasis (yes/no), liver metastasis(yes/no), brain metastasis (yes/no), cause of death, survival months, vital status (dead/alive), rural/urban classification. 
+This study will utilize the Surveillance, Epidemiology, and End Results (SEER) database, one of the most comprehensive cancer incidence and survival registries, covering over 48% of the United States.
+SEER collects key demographic data, cancer characteristics, treatment details, and survival outcomes.
+Managed by the U.S.
+National Cancer Institute, the database began recording information on lung, bone, liver, and brain metastases in 2010.
+Data for this study will be accessed through SEER\*Stat 8.4.4 software, using the SEER Research Data (2000–2019) from 17 registries.
 
-
+The extracted variables include age, race, income, American Joint Committee on Cancer (AJCC) stage, year of cancer diagnosis, lung metastasis (yes/no), brain metastasis (yes/no), liver metastasis (yes/no), brain metastasis (yes/no), cause of death, survival months, vital status (dead/alive), rural/urban classification.
 
 ## Questions/Hypotheses to be addressed
-_State the research questions you plan to answer with this analysis._
 
-_Question_ What are the clinicopathological features and survival outcomes of patients with different metastatic sites in stage IV endometrial cancer? 
+*Question* What are the clinicopathological features and survival outcomes of patients with different metastatic sites in stage IV endometrial cancer?
 
-_Hypothesis_ Patients with stage IV endometrial cancer exhibit distinct clinicopathological characteristics and survival outcomes based on the site of metastasis. Specifically, metastases to different organ sites (e.g., lung, liver, bone, and brain) are associated with varying prognostic implications, with some metastatic patterns demonstrating significantly poorer survival compared to others. By analyzing data from the SEER database, we hypothesize that certain metastatic sites will be linked to more aggressive tumor behavior and worse overall survival, highlighting potential differences in disease progression and treatment response.
-
-
-To cite other work (important everywhere, but likely happens first in introduction), make sure your references are in the bibtex file specified in the YAML header above and have the right bibtex key. Then you can include like this:
-
-Examples of reproducible research projects can for instance be found in [@mckay2020; @mckay2020a].
-
-
+*Hypothesis* Patients with stage IV endometrial cancer exhibit distinct clinicopathological characteristics and survival outcomes based on the site of metastasis.
+Specifically, metastases to different organ sites (e.g., lung, liver, bone, and brain) are associated with varying prognostic implications, with some metastatic patterns demonstrating significantly poorer survival compared to others.
+By analyzing data from the SEER database, we hypothesize that certain metastatic sites will be linked to more aggressive tumor behavior and worse overall survival, highlighting potential differences in disease progression and treatment response.
 
 {{< pagebreak >}}
 
+# Methods
 
-# Methods 
-
-_Describe your methods. That should describe the data, the cleaning processes, and the analysis approaches. You might want to provide a shorter description here and all the details in the supplement._
-This study examines survival outcomes in stage IV endometrial cancer using SEER data. The primary outcomes include survival months, cause-specific death classification, and vital status at study cutoff. Key predictors include age, race, income, year of diagnosis, and presence of differnt metastasis status.
-
-## Schematic of workflow
-
-Sometimes you might want to show a schematic diagram/figure that was not created with code (if you can do it with code, do it). @fig-schematic is an example of some - completely random/unrelated - schematic that was generated with Biorender.
-We store those figures in the `assets` folder.
-
-```{r}
-#| label: fig-schematic
-#| fig-cap: "A figure that is manually generated and shows some overview/schematic. This has nothing to do with the data, it's just a random one from one of our projects I found and placed here."
-#| echo: FALSE
-knitr::include_graphics(here("assets","antigen-recognition.png"))
-```
-
-
-
+This study examines survival outcomes in stage IV endometrial cancer using SEER data.
+The primary outcomes include survival months, cause-specific death classification, and vital status at study cutoff.
+Key predictors include age, race, income, year of diagnosis, and presence of differnt metastasis status.
 
 ## Data aquisition
-_As applicable, explain where and how you got the data. If you directly import the data from an online source, you can combine this section with the next._
-The data was extracted from SEER*Stat 8.4.4 software, using the SEER Research Data (2000–2019) from 17 registries. The following inclusion criteria was used to extract the data (1) primary site, C54.1–9 and C55.9 based on International Classification of Tumor Diseases for Oncology (ICD-O) codes; (2) year of diagnosis 2010-2015; (3) AJCC stage IV; (4) age more than 18 years.
 
+The data was extracted from SEER\*Stat 8.4.4 software, using the SEER Research Data (2000–2019) from 17 registries.
+The following inclusion criteria was used to extract the data (1) primary site, C54.1–9 and C55.9 based on International Classification of Tumor Diseases for Oncology (ICD-O) codes; (2) year of diagnosis 2010-2015; (3) AJCC stage IV; (4) age more than 18 years.
 
-The SEER database provided data on both demographic and clinical characteristics of the patients. The demographic variables included age at diagnosis, race, median household income (inflation-adjusted to 2019), year of diagnosis, and Derived AJCC Stage Group (7th edition, 2010-2015). The clinical variables comprised lung, brain, bone, and liver metastasis status, survival duration (in months), SEER cause-specific death classification, and vital status recode (used for study cutoff determination).
+The SEER database provided data on both demographic and clinical characteristics of the patients.
+The demographic variables included age at diagnosis, race, median household income (inflation-adjusted to 2019), year of diagnosis, and Derived AJCC Stage Group (7th edition, 2010-2015).
+The clinical variables comprised lung, brain, bone, and liver metastasis status, survival duration (in months), SEER cause-specific death classification, and vital status recode (used for study cutoff determination).
 
-Age will be categorized into four groups: 18-39, 40-59, 60-79, and ≥80 years. Race is classified into Asian or Pacific Islander, American Indian or Alaska Native, Black, and White. The income variable will be divided into six brackets: < $35,000, $35,000 - $44,999, $45,000 - $54,999, $55,000 - $64,999, $65,000 - $74,999, and $75,000+. The SEER cause-specific death classification was preferred over all-cause mortality to ensure that only deaths specifically attributed to endometrial cancer will be included in the analysis.
+Age will be categorized into four groups: 18-39, 40-59, 60-79, and ≥80 years.
+Race is classified into Asian or Pacific Islander, American Indian or Alaska Native, Black, and White.
+The income variable will be divided into six brackets: \< \$35,000, \$35,000 - \$44,999, \$45,000 - \$54,999, \$55,000 - \$64,999, \$65,000 - \$74,999, and \$75,000+.
+The SEER cause-specific death classification was preferred over all-cause mortality to ensure that only deaths specifically attributed to endometrial cancer will be included in the analysis.
 
 ## Data import and cleaning
-_Write code that reads in the file and cleans it so it's ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g. as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along._
 
-Endometrial cancer cases will be extracted from the SEER database. Patients with an unknown lung/brain/bone/liver metastasis status will be excluded. Individuals under 18 years of age will be removed from the dataset. Additionally, patients whose cause of death is unrelated to endometrial cancer or whose cause of death is missing or unknown will not be included in the analysis. Cases diagnosed at AJCC stages I to III will be excluded from the study. The final cohort will be categorized into 5 groups:  lung metastasis, brain metastasis, bone metastasis, liver metastasis and no metastasis.
-
-The data cleaning process has not yet started. The R code will be provided as the analysis completed. 
+Endometrial cancer cases were extracted from the SEER database.
+Individuals under 18 years of age were removed from the dataset.
+Additionally, patients whose cause of death is unrelated to endometrial cancer or whose cause of death is missing or unknown were not included in the analysis.
+Cases diagnosed at AJCC stages I to III was excluded from the study.
+The final cohort was categorized into 4 groups: lung metastasis, brain metastasis, bone metastasis, and liver metastasis.The SEER dataset underwent a structured cleaning process to ensure data integrity and suitability for analysis.
+First, data types were standardized by converting categorical variables such as Year of Diagnosis, RX Summ--Surg Prim Site (1998+), and Patient ID to character format, while Survival Months was converted to numeric.
+Key categorical variables, including Sex, Race, Metastasis Indicators, Survival Flags, and Cause-Specific Death Classification, were transformed into factors to maintain consistency.
+Patients within the age categories "01-04 years" and "15-19 years" were excluded, and only those classified as Stage IVA or IVB in the Derived AJCC Stage Group, 7th ed (2010-2015) were retained.
+Additionally, patients with "Dead (missing/unknown COD)" or "N/A not seq 0-59" in the SEER cause-specific death classification were removed.
+To ensure completeness, individuals with missing or unknown survival months were excluded.
+The final cleaned dataset was saved for further analysis, ensuring consistency and reproducibility.The code and raw data to reproduce the data cleaning step is available in https://github.com/mohammedzuber099/ZUBER-MADA-project.
 
 ## Statistical analysis
-_Explain anything related to your statistical analyses._
- The analysis aims to identify survival differences based on metastatic patterns, demographic disparities, socioeconomic influences, and temporal trends in prognosis. Kaplan-Meier survival analysis will used to compare the survival among the study cohorts. The incidence of metastasis will be calculated in stage IV endometrial cancer. A Cox regression model will be performed to compute the adjusted Hazard Ratios (aHR) and 95% confidence intervals (CI).
+
+The analysis aims to identify survival differences based on metastatic patterns, demographic disparities, socioeconomic influences, and temporal trends in prognosis.
+Kaplan-Meier survival analysis will used to compare the survival among the study cohorts.
+The incidence of metastasis will be calculated in stage IV endometrial cancer.
+A Cox regression model will be performed to compute the adjusted Hazard Ratios (aHR) and 95% confidence intervals (CI).
 
 {{< pagebreak >}}
-
 
 # Results
 
 ## Exploratory/Descriptive analysis
 
-_Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project._
-
-
 @tbl-summarytable shows a summary of the data.
-
-Note the loading of the data providing a **relative** path using the `../../` notation. (Two dots means a folder up). You never want to specify an **absolute** path like `C:\ahandel\myproject\results\` because if you share this with someone, it won't work for them since they don't have that path. You can also use the `here` R package to create paths. See examples of that below. I generally recommend the `here` package.
 
 ```{r}
 #| label: tbl-summarytable
 #| tbl-cap: "Data summary table."
 #| echo: FALSE
-resulttable=readRDS("../../results/tables/summarytable.rds")
+resulttable=readRDS(here("results","edatables","edasummarytable.rds"))
 knitr::kable(resulttable)
 ```
 
+@tbl-summarytablesurvival gives the overview of the survival.
+The survival months in our dataset range from 0 to 119 months, with a mean survival of 23.1 months and a median survival of 12 months, indicating a right-skewed distribution.
+The standard deviation (SD) is 27.67 months, reflecting high variability in patient survival.
+A total of 5,839 patients were included in the analysis.
+This distribution suggests that while some patients survive long-term, the majority have relatively short survival durations.
 
+```{r}
+#| label: tbl-summarytablesurvival
+#| tbl-cap: "Summary of Survival."
+#| echo: FALSE
+resulttable=readRDS(here("results","edatables","edasurvivalmonthssummary.rds"))
+knitr::kable(resulttable)
+```
+
+@fig-survival shows the distribution of survival months.
+This histogram illustrates the distribution of survival months among patients in the dataset.
+The x-axis represents survival duration in months, while the y-axis shows the count of patients within each survival interval.
+The distribution is right-skewed, indicating that most patients had shorter survival times, with a gradual decline in frequency as survival duration increases.
+A substantial proportion of patients survived less than 12 months, while fewer cases exhibited long-term survival beyond 60 months.
+The presence of some patients with survival exceeding 100 months highlights potential long-term survivors.
+
+```{r}
+#| label: fig-survival 
+#| fig-cap: "Survival months."
+#| echo: FALSE
+knitr::include_graphics(here("results","edafigures","edasurvivalmonthsdistribution.png"))
+```
+
+@tbl-summaryage and @fig-age shows age distribution.The dataset includes patients across a wide age range, with the majority falling within the 60-69 years age group.
+The highest number of patients are aged 60-64 years (1,006 patients), followed closely by 65-69 years (956 patients).
+The number of cases gradually decreases in older age groups, with 389 patients aged 80-84 years and 280 patients aged 85+ years.
+The youngest age groups (20-39 years) have significantly fewer cases, with only 3 patients aged 20-24 years and 64 patients aged 35-39 years.
+This distribution indicates that the majority of the study population consists of older adults, which aligns with typical cancer incidence patterns that increase with age.
+
+```{r}
+#| label: tbl-summaryage
+#| tbl-cap: "Summary of age."
+#| echo: FALSE
+resulttable=readRDS(here("results","edatables","edaagesummary.rds"))
+knitr::kable(resulttable)
+```
+
+```{r}
+#| label: fig-age 
+#| fig-cap: "Age"
+#| echo: FALSE
+knitr::include_graphics(here("results","edafigures","edaagedistribution.png"))
+```
+
+@tbl-summarymetastasis and @fig-mets shows distribution for different sit for metastasis.
+The table presents the distribution of metastatic sites at the time of diagnosis which is the main exposure in our study.
+Lung metastases were the most common, observed in 1,676 patients, followed by liver metastases (844 patients).
+Bone metastases were identified in 556 patients, while brain metastases were the least frequent, affecting 160 patients.
+This distribution suggests that lung and liver are the most frequent metastatic sites, which aligns with common metastatic patterns observed in many cancers.
+The lower occurrence of brain metastases may reflect differences in metastatic tropism or detection rates.
+
+```{r}
+#| label: tbl-summarymetastasis
+#| tbl-cap: "Summary of metastasis."
+#| echo: FALSE
+resulttable=readRDS(here("results","edatables","edametsatsummary.rds"))
+knitr::kable(resulttable)
+```
+
+```{r}
+#| label: fig-mets 
+#| fig-cap: "Metatstasis"
+#| echo: FALSE
+knitr::include_graphics(here("results","edafigures","edametsatdxdistribution.png"))
+```
 
 ## Basic statistical analysis
 
-_To get some further insight into your data, if reasonable you could compute simple statistics (e.g. simple models with 1 predictor) to look for associations between your outcome(s) and each individual predictor variable. Though note that unless you pre-specified the outcome and main exposure, any "p<0.05 means statistical significance" interpretation is not valid._
-
+*To get some further insight into your data, if reasonable you could compute simple statistics (e.g. simple models with 1 predictor) to look for associations between your outcome(s) and each individual predictor variable. Though note that unless you pre-specified the outcome and main exposure, any "p\<0.05 means statistical significance" interpretation is not valid.*
 
 @fig-result shows a scatterplot figure produced by one of the R scripts.
 
@@ -170,10 +227,9 @@ _To get some further insight into your data, if reasonable you could compute sim
 knitr::include_graphics(here("results","figures","height-weight-stratified.png"))
 ```
 
-
 ## Full analysis
 
-_Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here._
+*Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.*
 
 Example @tbl-resulttable2 shows a summary of a linear model fit.
 
@@ -185,33 +241,33 @@ resulttable2 = readRDS(here("results","tables","resulttable2.rds"))
 knitr::kable(resulttable2)
 ```
 
-
 {{< pagebreak >}}
-
 
 # Discussion
 
 ## Summary and Interpretation
-_Summarize what you did, what you found and what it means._
+
+*Summarize what you did, what you found and what it means.*
 
 ## Strengths and Limitations
-_Discuss what you perceive as strengths and limitations of your analysis._
+
+*Discuss what you perceive as strengths and limitations of your analysis.*
 
 ## Conclusions
-_What are the main take-home messages?_
 
-_Include citations in your Rmd file using bibtex, the list of references will automatically be placed at the end_
+*What are the main take-home messages?*
 
-This paper [@leek2015] discusses types of analyses. 
+*Include citations in your Rmd file using bibtex, the list of references will automatically be placed at the end*
 
-These papers [@mckay2020; @mckay2020a] are good examples of papers published using a fully reproducible setup similar to the one shown in this template. 
+This paper [@leek2015] discusses types of analyses.
 
-Note that this cited reference will show up at the end of the document, the reference formatting is determined by the CSL file specified in the YAML header. Many more style files for almost any journal [are available](https://www.zotero.org/styles). You also specify the location of your bibtex reference file in the YAML. You can call your reference file anything you like.
+These papers [@mckay2020; @mckay2020a] are good examples of papers published using a fully reproducible setup similar to the one shown in this template.
 
+Note that this cited reference will show up at the end of the document, the reference formatting is determined by the CSL file specified in the YAML header.
+Many more style files for almost any journal [are available](https://www.zotero.org/styles).
+You also specify the location of your bibtex reference file in the YAML.
+You can call your reference file anything you like.
 
 {{< pagebreak >}}
 
 # References
-
-
-

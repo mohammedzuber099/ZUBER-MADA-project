@@ -1,15 +1,58 @@
+---
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+
+THE FINAL CODE USED FOR THE DATA CLEANING IS processingcodemz
 # processing-code
 
-This folder contains code for processing data.
+This script outlines the step-by-step cleaning and preparation of SEER data for analysis.
+Below is a high-level summary of the transformations applied:
 
-It currently contains 3 example files, showing the same processing steps done using slightly different setup with R and Quarto.
+#Data Loading
 
-* First, there is an R script that you can run which does all the cleaning.
-* Second, there is a Quarto file which contains exactly the same code as the R script, with some comments. Everything lives inside the Quarto file.
-* Third, my current favorite, is a Quarto file with an approach where the code is pulled in from the R script and run.
+Loaded the raw dataset from a CSV file using readr::read_csv().
+Loaded the codebook to understand variable definitions.
+Initial Data Inspection
 
-The last version has the advantage of having code in one place for easy writing/debugging, and then being able to pull the code into the Quarto file for a nice combination of text/commentary and code.
+Used glimpse(), summary(), head(), and skimr::skim() to get an overview of the dataset.
 
-Each way of doing this is a reasonable approach, pick whichever one you prefer or makes the most sense for your setup. You can also mix and match. For instance for an EDA task, it might make sense to produce a Quarto file. Then I would use the 2nd or 3rd approach. If you do a main analysis, then you might just want to have an R script that does the data analysis and saves the results to a file, for later use/processing. You might not need or want a quarto file for that.
+#Data Cleaning Steps
 
-Whichever approach you choose, add ample documentation/commentary so you and others can easily understand what's going on and what is done.
+##Fixed Data Types
+
+Converted Year of diagnosis, RX Summ--Surg Prim Site (1998+), and Patient ID to character (since they are categorical).
+Converted Survival months to numeric for proper analysis.
+
+##Converted Categorical Variables to Factors
+
+Transformed variables such as Sex, Race, Metastasis Indicators, Survival Flags, and Cause-Specific Death Classification into factor format to ensure categorical consistency.
+
+##Filtered Patients Based on Age
+
+Excluded patients in the age categories "01-04 years" and "15-19 years" to focus on the relevant population.
+Included Only Stage IVA and IVB Patients
+
+Filtered the dataset to retain only patients classified under Stage IVA and IVB in Derived AJCC Stage Group, 7th ed (2010-2015).
+
+##Excluded Patients Based on Cause-Specific Death Classification
+
+Removed patients with "Dead (missing/unknown COD)" and "N/A not seq 0-59" from SEER cause-specific death classification.
+
+##Removed Patients with Missing Survival Data
+
+Ensured Survival months is not missing (NA) to maintain analytical integrity.
+
+#Final Dataset Assignment
+
+Assigned the fully cleaned dataset to processeddata for future use.
+
+#Saved Cleaned Data
+
+Stored the cleaned dataset as an RDS file (processeddata.rds) using saveRDS(), which preserves data types and structures.
+Provided references on best practices for data storage.
+Notes on Data Handling
+
+Documented that removing patients with missing data is one approach, but other imputation or handling strategies might be considered depending on the research question.

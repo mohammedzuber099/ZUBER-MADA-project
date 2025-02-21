@@ -1,0 +1,280 @@
+---
+title: "Exploratory analysis script"
+date: "2024-02-20"
+output: html_document
+---
+
+The purpose of this script is to conduct an exploratory analysis of the given dataset. This involves summarizing key variables, identifying patterns, and visualizing data distributions. The analysis will help in understanding the dataset’s structure, detecting anomalies, and forming preliminary insights for further modeling or hypothesis testing.
+
+```{r}
+#load needed packages. make sure they are installed.
+library(here) #for data loading/saving
+library(dplyr)
+library(skimr)
+library(ggplot2)
+```
+
+
+Load the data.
+
+```{r}
+#Path to data. Note the use of the here() package and not absolute paths
+data_location <- here::here("data","processed-data","processeddata.rds")
+#load data
+mydata <- readRDS(data_location)
+```
+
+Generate a summary of the dataset using the skimr package and print it for review.  The summary provides key statistics such as missing values, variable types, and distributions. The output is saved as an RDS file in the "results/edatables/" directory.  The prefix "eda" in the filename helps distinguish exploratory analysis files from final analysis outputs.  Storing the summary table allows for future reference without the need to rerun the analysis.  
+
+```{r}
+summary_df = skimr::skim(mydata)
+print(summary_df)
+# save to file
+summarytable_file = here("results", "edatables", "edasummarytable.rds")
+saveRDS(summary_df, file = summarytable_file)
+```
+
+I am exploring the variable age first with the table
+
+```{r}
+# Summary of Age recode variable (categorical)
+p1 <- mydata %>%
+  group_by(`Age recode with <1 year olds`) %>%
+  summarise(Count = n()) 
+
+# Print the summary table
+print(p1)
+
+# Save the summary table
+summarytable_file = here("results", "edatables", "edaagesummary.rds")
+saveRDS(p1, file = summarytable_file)
+
+```
+Now lets look at the bar plot for age distribution 
+
+```{r}
+# Bar plot for Age recode distribution (categorical)
+p2 <- mydata %>%
+  ggplot(aes(x = `Age recode with <1 year olds`)) + 
+  geom_bar(fill = "skyblue") + 
+  labs(title = "Age Distribution (Categorical)", x = "Age Group", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis labels for readability
+
+# Display the plot
+plot(p2)
+
+# Save the plot
+figure_file = here("results", "edafigures", "edaagedistribution.png")
+ggsave(filename = figure_file, plot = p2)
+
+```
+Now, exploring the Race recode (W, B, AI, API) variable
+
+```{r}
+# Summary of Race recode variable (categorical)
+# - Groups the dataset by the "Race recode (W, B, AI, API)" variable.
+# - Counts the number of observations in each race category.
+p3 <- mydata %>%
+  group_by(`Race recode (W, B, AI, API)`) %>%
+  summarise(Count = n())
+
+# Print the summary table
+print(p3)
+
+# Save the summary table
+# - Stored in "results/edatables/" with the prefix "eda" to indicate exploratory analysis.
+summarytable_file = here("results", "edatables", "edaracesummary.rds")
+saveRDS(p3, file = summarytable_file)
+```
+```{r}
+# Bar plot for Race recode distribution (categorical)
+# - Visualizes the distribution of race categories.
+# - Uses "skyblue" fill for better readability.
+p4 <- mydata %>%
+  ggplot(aes(x = `Race recode (W, B, AI, API)`)) + 
+  geom_bar(fill = "skyblue") + 
+  labs(title = "Race Distribution", x = "Race Category", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotates x-axis labels for better readability
+
+# Display the plot
+plot(p4)
+
+# Save the plot
+# - Stored in "results/edafigures/" with the prefix "eda" to indicate exploratory analysis.
+figure_file = here("results", "edafigures", "edaracedistribution.png")
+ggsave(filename = figure_file, plot = p4)
+
+```
+Now exploring Year of Diagnosis 
+```{r}
+# Summary of Year of Diagnosis variable (categorical)
+# - Groups the dataset by "Year of diagnosis" and counts occurrences.
+p5 <- mydata %>%
+  group_by(`Year of diagnosis`) %>%
+  summarise(Count = n())
+
+# Print the summary table
+print(p5)
+
+# Save the summary table
+# - Stored in "results/edatables/" with the prefix "eda" to indicate exploratory analysis.
+summarytable_file = here("results", "edatables", "edayearsummary.rds")
+saveRDS(p5, file = summarytable_file)
+
+```
+```{r}
+# Bar plot for Year of Diagnosis distribution (categorical)
+# - Visualizes the distribution of diagnosis years.
+# - Uses "skyblue" fill for better readability.
+p6 <- mydata %>%
+  ggplot(aes(x = factor(`Year of diagnosis`))) +  # Treat as categorical
+  geom_bar(fill = "skyblue") + 
+  labs(title = "Year of Diagnosis Distribution", x = "Year", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotates x-axis labels for better readability
+
+# Display the plot
+plot(p6)
+
+# Save the plot
+# - Stored in "results/edafigures/" with the prefix "eda" to indicate exploratory analysis.
+figure_file = here("results", "edafigures", "edayear.png")
+ggsave(filename = figure_file, plot = p6)
+
+```
+Now, lets explore SEER Combined Mets at DX (Bone, Brain, Liver, Lung, and Distant LN) using p7 for the summary table and p8 for the bar plot
+
+```{r}
+# Summary of SEER Combined Mets at DX variables (categorical)
+# - Groups data by metastasis categories and counts occurrences.
+p7 <- mydata %>%
+  summarise(
+    Bone_Mets = sum(`SEER Combined Mets at DX-bone (2010+)` == "Yes", na.rm = TRUE),
+    Brain_Mets = sum(`SEER Combined Mets at DX-brain (2010+)` == "Yes", na.rm = TRUE),
+    Liver_Mets = sum(`SEER Combined Mets at DX-liver (2010+)` == "Yes", na.rm = TRUE),
+    Lung_Mets = sum(`SEER Combined Mets at DX-lung (2010+)` == "Yes", na.rm = TRUE),
+      ) %>%
+  pivot_longer(cols = everything(), names_to = "Metastasis_Site", values_to = "Count")
+
+# Print the summary table
+print(p7)
+
+# Save the summary table
+# - Stored in "results/edatables/" with the prefix "eda" to indicate exploratory analysis.
+summarytable_file = here("results", "edatables", "edametsatsummary.rds")
+saveRDS(p7, file = summarytable_file)
+
+
+```
+
+```{r}
+# Bar plot for SEER Combined Mets at DX distribution
+# - Visualizes the number of occurrences for each metastasis type.
+# - Uses "skyblue" fill for better readability.
+p8 <- p7 %>%
+  ggplot(aes(x = Metastasis_Site, y = Count, fill = Metastasis_Site)) + 
+  geom_bar(stat = "identity") + 
+  labs(title = "Metastasis at Diagnosis Distribution", x = "Metastasis Site", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  guides(fill = "none")  # Removes legend since it's redundant
+
+# Display the plot
+plot(p8)
+
+# Save the plot
+# - Stored in "results/edafigures/" with the prefix "eda" to indicate exploratory analysis.
+figure_file = here("results", "edafigures", "edametsatdxdistribution.png")
+ggsave(filename = figure_file, plot = p8)
+
+```
+Now, lets explore SEER cause-specific death classification
+
+```{r}
+# Summary of SEER Cause-Specific Death Classification variable (categorical)
+# - Counts the number of occurrences for each cause-specific death classification category.
+# - Also calculates the percentage for each category.
+p9 <- mydata %>%
+  group_by(`SEER cause-specific death classification`) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  mutate(Percentage = round((Count / sum(Count)) * 100, 1))
+
+# Print the summary table
+print(p9)
+
+# Save the summary table
+# - Stored in "results/edatables/" with the prefix "eda" to indicate exploratory analysis.
+summarytable_file = here("results", "edatables", "edacausedeathsummary.rds")
+saveRDS(p9, file = summarytable_file)
+
+```
+
+
+```{r}
+# Bar plot for SEER Cause-Specific Death Classification distribution
+# - Visualizes the distribution of cause-specific death classification.
+p10 <- p9 %>%
+  ggplot(aes(x = `SEER cause-specific death classification`, y = Count, fill = `SEER cause-specific death classification`)) + 
+  geom_bar(stat = "identity") + 
+  labs(title = "SEER Cause-Specific Death Classification", x = "Cause-Specific Death Category", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  guides(fill = "none")  # Removes legend since x-axis labels already describe the categories
+
+# Display the plot
+plot(p10)
+
+# Save the plot
+# - Stored in "results/edafigures/" with the prefix "eda" to indicate exploratory analysis.
+figure_file = here("results", "edafigures", "edacausedeathdistribution.png")
+ggsave(filename = figure_file, plot = p10)
+
+```
+Now, lets explore Survival Months
+
+
+```{r}
+# Summary of Survival Months variable (continuous)
+# - Computes descriptive statistics for survival months.
+p11 <- mydata %>%
+  summarise(
+    Min_Survival = min(`Survival months`, na.rm = TRUE),
+    Max_Survival = max(`Survival months`, na.rm = TRUE),
+    Mean_Survival = mean(`Survival months`, na.rm = TRUE),
+    Median_Survival = median(`Survival months`, na.rm = TRUE),
+    SD_Survival = sd(`Survival months`, na.rm = TRUE),
+    Count = n()
+  )
+
+# Print the summary table
+print(p11)
+
+# Save the summary table
+# - Stored in "results/edatables/" with the prefix "eda" to indicate exploratory analysis.
+summarytable_file = here("results", "edatables", "edasurvivalmonthssummary.rds")
+saveRDS(p11, file = summarytable_file)
+
+```
+```{r}
+# Histogram for Survival Months distribution
+# - Visualizes the distribution of survival months.
+p12 <- mydata %>%
+  ggplot(aes(x = `Survival months`)) + 
+  geom_histogram(binwidth = 5, fill = "skyblue", color = "black") + 
+  labs(title = "Survival Months Distribution", x = "Survival Months", y = "Count") +
+  theme_minimal()
+
+# Display the plot
+plot(p12)
+
+# Save the plot
+# - Stored in "results/edafigures/" with the prefix "eda" to indicate exploratory analysis.
+figure_file = here("results", "edafigures", "edasurvivalmonthsdistribution.png")
+ggsave(filename = figure_file, plot = p12)
+
+```
+
+
+

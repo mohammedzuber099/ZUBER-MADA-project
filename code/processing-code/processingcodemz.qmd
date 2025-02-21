@@ -1,0 +1,175 @@
+---
+title: "Cleaning script"
+author: "Mohammed Zuber"
+format: html
+date: "2-20-2025""
+editor: visual
+---
+
+# Processing script
+
+This document contains all the code and a detailed description of the data cleaning process involved in this project. It provides explanations and comments for each step to facilitate understanding and reproducibility in the future.
+
+This Quarto file integrates both code and text, allowing for a structured approach to data cleaning, preprocessing, and transformation.
+
+
+# Setup
+
+Load needed packages. make sure they are installed.
+
+```{r}
+library(readxl) #for loading Excel files
+library(dplyr) #for data processing/cleaning
+library(tidyr) #for data processing/cleaning
+library(skimr) #for nice visualization of data 
+library(here) #to set paths
+```
+
+# data loading
+I am loading the raw data for further cleaning and processing 
+```{r}
+# path to data
+# note the use of the here() package and not absolute paths
+data_location <- here::here("data","raw-data","rawdata.csv")
+rawdata <- readr::read_csv(data_location)
+```
+# Check Data
+
+## First, load the codebook
+
+```{r}
+codebook_location <- here::here("data", "raw-data", "codebook.csv")
+codebook <- readr::read_csv(codebook_location)
+print(codebook)
+```
+
+## Several ways of looking at the data
+
+```{r}
+dplyr::glimpse(rawdata)  # Overview of data structure
+summary(rawdata)  # Summary statistics
+head(rawdata)  # First few rows of the dataset
+skimr::skim(rawdata)  # Detailed summary including missing values
+```
+
+
+# Data Cleaning
+
+By inspecting the data as done above, we identify some issues that need to be addressed.
+
+Some variables were incorrectly read as numeric when they should be categorical (character).
+Convert the following:
+Year of diagnosis → Convert to character (since it represents a categorical year label rather than a numeric value).
+RX Summ--Surg Prim Site (1998+) → Convert to character (since it represents surgery codes rather than numerical values).
+Patient ID → Convert to character (since it's an identifier and should not be used in numerical calculations).
+Survival months → Convert to numeric (since it was loaded as a character string and should be a numerical value for analysis).
+
+## Fixing Data Types
+
+```{r}
+d1 <- rawdata %>% 
+  dplyr::mutate(
+    `Year of diagnosis` = as.character(`Year of diagnosis`),  # Convert to character
+    `RX Summ--Surg Prim Site (1998+)` = as.character(`RX Summ--Surg Prim Site (1998+)`),  # Convert to character
+    `Patient ID` = as.character(`Patient ID`),  # Convert to character
+    `Survival months` = as.numeric(`Survival months`)  # Convert to numeric
+  )
+
+skimr::skim(d1)  # Check changes
+```
+## Converting Categorical Variables to Factor
+
+To ensure categorical variables are properly treated, we convert several key variables to factor type. This is important for:
+- Efficient storage and manipulation of categorical data.
+- Enabling statistical models and visualizations to properly recognize categories.
+- Improving the interpretability of categorical variables in analysis.
+
+We apply this conversion to the following variables:
+- **Sex** and **Race-related variables** to ensure demographic information is handled correctly.
+- **Cancer staging and metastasis indicators** to ensure proper classification.
+- **Cause of death and survival indicators** to maintain categorical consistency.
+```{r}
+d2 <- d1 %>% dplyr::mutate(
+    Sex = as.factor(Sex),
+    `Race recode (W, B, AI, API)` = as.factor(`Race recode (W, B, AI, API)`),
+    `Origin recode NHIA (Hispanic, Non-Hisp)` = as.factor(`Origin recode NHIA (Hispanic, Non-Hisp)`),
+    `Race and origin recode (NHW, NHB, NHAIAN, NHAPI, Hispanic)` = as.factor(`Race and origin recode (NHW, NHB, NHAIAN, NHAPI, Hispanic)`),
+    `Derived AJCC Stage Group, 7th ed (2010-2015)` = as.factor(`Derived AJCC Stage Group, 7th ed (2010-2015)`),
+    `SEER Combined Mets at DX-bone (2010+)` = as.factor(`SEER Combined Mets at DX-bone (2010+)`),
+    `SEER Combined Mets at DX-brain (2010+)` = as.factor(`SEER Combined Mets at DX-brain (2010+)`),
+    `SEER Combined Mets at DX-liver (2010+)` = as.factor(`SEER Combined Mets at DX-liver (2010+)`),
+    `SEER Combined Mets at DX-lung (2010+)` = as.factor(`SEER Combined Mets at DX-lung (2010+)`),
+    `Mets at DX-Distant LN (2016+)` = as.factor(`Mets at DX-Distant LN (2016+)`),
+    `COD to site recode` = as.factor(`COD to site recode`),
+    `SEER cause-specific death classification` = as.factor(`SEER cause-specific death classification`),
+    `SEER other cause of death classification` = as.factor(`SEER other cause of death classification`),
+    `Survival months flag` = as.factor(`Survival months flag`),
+    `COD to site rec KM` = as.factor(`COD to site rec KM`),
+    `Vital status recode (study cutoff used)` = as.factor(`Vital status recode (study cutoff used)`)
+)
+
+skimr::skim(d2)
+```
+## Removing Patients in Specific Age Categories
+
+To focus our analysis on the adult patient population, we remove patients in the following age categories:
+- **01-04 years**
+- **15-19 years**
+
+```{r}
+d3 <- d2 %>% dplyr::filter(!`Age recode with <1 year olds` %in% c("01-04 years", "15-19 years"))
+skimr::skim(d3)
+```
+## Including Patients with Stage IVA and IVB
+
+To refine our dataset further, we include only patients who are categorized as **Stage IVA or IVB** based on the `Derived AJCC Stage Group, 7th ed (2010-2015)` column.
+
+```{r}
+d4 <- d3 %>% dplyr::filter(`Derived AJCC Stage Group, 7th ed (2010-2015)` %in% c("IVA", "IVB"))
+skimr::skim(d4)
+```
+## Excluding Patients with Specific SEER Cause-Specific Death Classification
+
+To ensure data quality, we exclude patients with `SEER cause-specific death classification` categorized as:
+- **Dead (missing/unknown COD)**
+- **N/A not seq 0-59**
+
+```{r}
+d5 <- d4 %>% dplyr::filter(!`SEER cause-specific death classification` %in% c("Dead (missing/unknown COD)", "N/A not seq 0-59"))
+skimr::skim(d5)
+```
+
+## Excluding Patients with Unknown or Missing Survival Months
+
+To ensure accurate survival analysis, we exclude patients who have **unknown or missing** survival months.
+
+```{r}
+d6 <- d5 %>% dplyr::filter(!is.na(`Survival months`))
+skimr::skim(d6)
+```
+## All done, data is clean now.
+
+Let's assign the final cleaned dataset to a variable. This makes it easier to add further cleaning steps above if needed.
+
+```{r}
+processeddata <- d6  # Assign cleaned dataset
+```
+
+# Save Data
+
+Finally, we save the clean data as an RDS file. Saving as RDS or RDA/RData preserves coding like factors, characters, and numeric types, whereas CSV does not retain such metadata. However, CSV is useful for sharing as it is plain text. Consider documenting variable meanings if sharing as CSV.
+
+For reference, see suggestions on storing processed data: [Saving Data into R Data Format](http://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata)
+
+```{r}
+save_data_location <- here::here("data", "processed-data", "processeddata.rds")
+saveRDS(processeddata, file = save_data_location)
+```
+
+# Notes
+
+Removing individuals with "faulty" or missing data is one approach. However, depending on the question and analysis approach, different cleaning methods might be better (e.g., keeping individuals with some missing information).
+
+
+
+
