@@ -63,7 +63,7 @@ Compared to other gynecological cancers such as cervical and ovarian cancer, end
 According to Mao et al., 2020, the five-year cancer-specific survival (CSS) rate for liver and brain metastases was 21%, while bone metastases had a survival rate of 20%.
 In patients with lung metastases, the median overall survival was 11 months, with a five-year CSS rate of 19%.
 However, this data specifically pertains to stage IV lung cancer patients.[@Mao2020] Patients with advanced endometrial cancer face poor survival outcomes, with metastatic disease being the leading cause of mortality.
-[@Amant2005] Therefore, this study aimed to utilize data from the Surveillance, Epidemiology, and End Results (SEER) database to analyze survival outcomes in patients diagnosed with stage IV endometrial cancer.
+[@Mao2020] Therefore, this study aimed to utilize data from the Surveillance, Epidemiology, and End Results (SEER) database to analyze survival outcomes in patients diagnosed with stage IV endometrial cancer.
 The primary objective was to determine whether the presence of lung/brain/bone/liver metastases in adults with stage IV endometrial cancer is associated with worse survival outcomes compared to patients without any metastasis.
 
 ## Description of data and data source
@@ -118,7 +118,7 @@ Key categorical variables, including Sex, Race, Metastasis Indicators, Survival 
 Patients within the age categories "01-04 years" and "15-19 years" were excluded, and only those classified as Stage IVA or IVB in the Derived AJCC Stage Group, 7th ed (2010-2015) were retained.
 Additionally, patients with "Dead (missing/unknown COD)" or "N/A not seq 0-59" in the SEER cause-specific death classification were removed.
 To ensure completeness, individuals with missing or unknown survival months were excluded.
-The final cleaned dataset was saved for further analysis, ensuring consistency and reproducibility.The code and raw data to reproduce the data cleaning step is available in https://github.com/mohammedzuber099/ZUBER-MADA-project.
+The final cleaned dataset was saved for further analysis, ensuring consistency and reproducibility. The code and raw data to reproduce the data cleaning step is available in https://github.com/mohammedzuber099/ZUBER-MADA-project.
 
 ## Statistical analysis
 
@@ -185,6 +185,8 @@ resulttable=readRDS(here("results","edatables","edaagesummary.rds"))
 knitr::kable(resulttable)
 ```
 
+@fig-age shows this distribution indicates that the majority of the study population consists of older adults, which aligns with typical cancer incidence patterns that increase with age.
+
 ```{r}
 #| label: fig-age 
 #| fig-cap: "Age"
@@ -196,8 +198,6 @@ knitr::include_graphics(here("results","edafigures","edaagedistribution.png"))
 The table presents the distribution of metastatic sites at the time of diagnosis which is the main exposure in our study.
 Lung metastases were the most common, observed in 1,676 patients, followed by liver metastases (844 patients).
 Bone metastases were identified in 556 patients, while brain metastases were the least frequent, affecting 160 patients.
-This distribution suggests that lung and liver are the most frequent metastatic sites, which aligns with common metastatic patterns observed in many cancers.
-The lower occurrence of brain metastases may reflect differences in metastatic tropism or detection rates.
 
 ```{r}
 #| label: tbl-summarymetastasis
@@ -206,6 +206,9 @@ The lower occurrence of brain metastases may reflect differences in metastatic t
 resulttable=readRDS(here("results","edatables","edametsatsummary.rds"))
 knitr::kable(resulttable)
 ```
+
+@fig-mets shows this distribution suggests that lung and liver are the most frequent metastatic sites, which aligns with common metastatic patterns observed in many cancers.
+The lower occurrence of brain metastases may reflect differences in metastatic tropism or detection rates.
 
 ```{r}
 #| label: fig-mets 
