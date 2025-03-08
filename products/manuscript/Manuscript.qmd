@@ -118,7 +118,8 @@ Key categorical variables, including Sex, Race, Metastasis Indicators, Survival 
 Patients within the age categories "01-04 years" and "15-19 years" were excluded, and only those classified as Stage IVA or IVB in the Derived AJCC Stage Group, 7th ed (2010-2015) were retained.
 Additionally, patients with "Dead (missing/unknown COD)" or "N/A not seq 0-59" in the SEER cause-specific death classification were removed.
 To ensure completeness, individuals with missing or unknown survival months were excluded.
-The final cleaned dataset was saved for further analysis, ensuring consistency and reproducibility. The code and raw data to reproduce the data cleaning step is available in https://github.com/mohammedzuber099/ZUBER-MADA-project.
+The final cleaned dataset was saved for further analysis, ensuring consistency and reproducibility.
+The code and raw data to reproduce the data cleaning step is available in https://github.com/mohammedzuber099/ZUBER-MADA-project.
 
 ## Statistical analysis
 
@@ -139,7 +140,7 @@ A Cox regression model will be performed to compute the adjusted Hazard Ratios (
 #| label: tbl-summarytable
 #| tbl-cap: "Data summary table."
 #| echo: FALSE
-resulttable=readRDS(here("results","edatables","edasummarytable.rds"))
+resulttable=readRDS(here("results","edatables","edasummarytable2.rds"))
 knitr::kable(resulttable)
 ```
 

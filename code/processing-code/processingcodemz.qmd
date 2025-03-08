@@ -12,7 +12,6 @@ This document contains all the code and a detailed description of the data clean
 
 This Quarto file integrates both code and text, allowing for a structured approach to data cleaning, preprocessing, and transformation.
 
-
 # Setup
 
 Load needed packages. make sure they are installed.
@@ -26,13 +25,16 @@ library(here) #to set paths
 ```
 
 # data loading
-I am loading the raw data for further cleaning and processing 
+
+I am loading the raw data for further cleaning and processing
+
 ```{r}
 # path to data
 # note the use of the here() package and not absolute paths
 data_location <- here::here("data","raw-data","rawdata.csv")
 rawdata <- readr::read_csv(data_location)
 ```
+
 # Check Data
 
 ## First, load the codebook
@@ -52,17 +54,11 @@ head(rawdata)  # First few rows of the dataset
 skimr::skim(rawdata)  # Detailed summary including missing values
 ```
 
-
 # Data Cleaning
 
 By inspecting the data as done above, we identify some issues that need to be addressed.
 
-Some variables were incorrectly read as numeric when they should be categorical (character).
-Convert the following:
-Year of diagnosis → Convert to character (since it represents a categorical year label rather than a numeric value).
-RX Summ--Surg Prim Site (1998+) → Convert to character (since it represents surgery codes rather than numerical values).
-Patient ID → Convert to character (since it's an identifier and should not be used in numerical calculations).
-Survival months → Convert to numeric (since it was loaded as a character string and should be a numerical value for analysis).
+Some variables were incorrectly read as numeric when they should be categorical (character). Convert the following: Year of diagnosis → Convert to character (since it represents a categorical year label rather than a numeric value). RX Summ--Surg Prim Site (1998+) → Convert to character (since it represents surgery codes rather than numerical values). Patient ID → Convert to character (since it's an identifier and should not be used in numerical calculations). Survival months → Convert to numeric (since it was loaded as a character string and should be a numerical value for analysis).
 
 ## Fixing Data Types
 
@@ -77,17 +73,13 @@ d1 <- rawdata %>%
 
 skimr::skim(d1)  # Check changes
 ```
+
 ## Converting Categorical Variables to Factor
 
-To ensure categorical variables are properly treated, we convert several key variables to factor type. This is important for:
-- Efficient storage and manipulation of categorical data.
-- Enabling statistical models and visualizations to properly recognize categories.
-- Improving the interpretability of categorical variables in analysis.
+To ensure categorical variables are properly treated, we convert several key variables to factor type. This is important for: - Efficient storage and manipulation of categorical data. - Enabling statistical models and visualizations to properly recognize categories. - Improving the interpretability of categorical variables in analysis.
 
-We apply this conversion to the following variables:
-- **Sex** and **Race-related variables** to ensure demographic information is handled correctly.
-- **Cancer staging and metastasis indicators** to ensure proper classification.
-- **Cause of death and survival indicators** to maintain categorical consistency.
+We apply this conversion to the following variables: - **Sex** and **Race-related variables** to ensure demographic information is handled correctly. - **Cancer staging and metastasis indicators** to ensure proper classification. - **Cause of death and survival indicators** to maintain categorical consistency.
+
 ```{r}
 d2 <- d1 %>% dplyr::mutate(
     Sex = as.factor(Sex),
@@ -110,16 +102,16 @@ d2 <- d1 %>% dplyr::mutate(
 
 skimr::skim(d2)
 ```
+
 ## Removing Patients in Specific Age Categories
 
-To focus our analysis on the adult patient population, we remove patients in the following age categories:
-- **01-04 years**
-- **15-19 years**
+To focus our analysis on the adult patient population, we remove patients in the following age categories: - **01-04 years** - **15-19 years**
 
 ```{r}
 d3 <- d2 %>% dplyr::filter(!`Age recode with <1 year olds` %in% c("01-04 years", "15-19 years"))
 skimr::skim(d3)
 ```
+
 ## Including Patients with Stage IVA and IVB
 
 To refine our dataset further, we include only patients who are categorized as **Stage IVA or IVB** based on the `Derived AJCC Stage Group, 7th ed (2010-2015)` column.
@@ -128,11 +120,10 @@ To refine our dataset further, we include only patients who are categorized as *
 d4 <- d3 %>% dplyr::filter(`Derived AJCC Stage Group, 7th ed (2010-2015)` %in% c("IVA", "IVB"))
 skimr::skim(d4)
 ```
+
 ## Excluding Patients with Specific SEER Cause-Specific Death Classification
 
-To ensure data quality, we exclude patients with `SEER cause-specific death classification` categorized as:
-- **Dead (missing/unknown COD)**
-- **N/A not seq 0-59**
+To ensure data quality, we exclude patients with `SEER cause-specific death classification` categorized as: - **Dead (missing/unknown COD)** - **N/A not seq 0-59**
 
 ```{r}
 d5 <- d4 %>% dplyr::filter(!`SEER cause-specific death classification` %in% c("Dead (missing/unknown COD)", "N/A not seq 0-59"))
@@ -147,6 +138,7 @@ To ensure accurate survival analysis, we exclude patients who have **unknown or 
 d6 <- d5 %>% dplyr::filter(!is.na(`Survival months`))
 skimr::skim(d6)
 ```
+
 ## All done, data is clean now.
 
 Let's assign the final cleaned dataset to a variable. This makes it easier to add further cleaning steps above if needed.
@@ -169,7 +161,3 @@ saveRDS(processeddata, file = save_data_location)
 # Notes
 
 Removing individuals with "faulty" or missing data is one approach. However, depending on the question and analysis approach, different cleaning methods might be better (e.g., keeping individuals with some missing information).
-
-
-
-

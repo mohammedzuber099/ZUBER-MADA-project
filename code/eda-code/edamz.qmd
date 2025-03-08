@@ -33,6 +33,22 @@ print(summary_df)
 summarytable_file = here("results", "edatables", "edasummarytable.rds")
 saveRDS(summary_df, file = summarytable_file)
 ```
+```{r}
+# Create a structured summary table
+var_summary <- mydata %>%
+  summarise_all(class) %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Type") %>%
+  mutate(Unique_Values = sapply(mydata, function(x) length(unique(x))),
+         Missing_Values = sapply(mydata, function(x) sum(is.na(x))))
+
+# Print the table to verify
+print(var_summary)
+
+# Save the structured table in a readable format
+summarytable_file = here("results", "edatables", "edasummarytable2.rds")
+saveRDS(var_summary, file = summarytable_file)
+```
+
 
 I am exploring the variable age first with the table
 
