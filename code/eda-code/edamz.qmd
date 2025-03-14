@@ -55,7 +55,7 @@ I am exploring the variable age first with the table
 ```{r}
 # Summary of Age recode variable (categorical)
 p1 <- mydata %>%
-  group_by(`Age recode with <1 year olds`) %>%
+  group_by(`age_group`) %>%
   summarise(Count = n()) 
 
 # Print the summary table
@@ -71,7 +71,7 @@ Now lets look at the bar plot for age distribution
 ```{r}
 # Bar plot for Age recode distribution (categorical)
 p2 <- mydata %>%
-  ggplot(aes(x = `Age recode with <1 year olds`)) + 
+  ggplot(aes(x = `age_group`)) + 
   geom_bar(fill = "skyblue") + 
   labs(title = "Age Distribution (Categorical)", x = "Age Group", y = "Count") +
   theme_minimal() +
@@ -92,7 +92,7 @@ Now, exploring the Race recode (W, B, AI, API) variable
 # - Groups the dataset by the "Race recode (W, B, AI, API)" variable.
 # - Counts the number of observations in each race category.
 p3 <- mydata %>%
-  group_by(`Race recode (W, B, AI, API)`) %>%
+  group_by(`race`) %>%
   summarise(Count = n())
 
 # Print the summary table
@@ -108,7 +108,7 @@ saveRDS(p3, file = summarytable_file)
 # - Visualizes the distribution of race categories.
 # - Uses "skyblue" fill for better readability.
 p4 <- mydata %>%
-  ggplot(aes(x = `Race recode (W, B, AI, API)`)) + 
+  ggplot(aes(x = race)) + 
   geom_bar(fill = "skyblue") + 
   labs(title = "Race Distribution", x = "Race Category", y = "Count") +
   theme_minimal() +
@@ -128,7 +128,7 @@ Now exploring Year of Diagnosis
 # Summary of Year of Diagnosis variable (categorical)
 # - Groups the dataset by "Year of diagnosis" and counts occurrences.
 p5 <- mydata %>%
-  group_by(`Year of diagnosis`) %>%
+  group_by(diagnosis_year) %>%
   summarise(Count = n())
 
 # Print the summary table
@@ -145,7 +145,7 @@ saveRDS(p5, file = summarytable_file)
 # - Visualizes the distribution of diagnosis years.
 # - Uses "skyblue" fill for better readability.
 p6 <- mydata %>%
-  ggplot(aes(x = factor(`Year of diagnosis`))) +  # Treat as categorical
+  ggplot(aes(x = factor(diagnosis_year))) +  # Treat as categorical
   geom_bar(fill = "skyblue") + 
   labs(title = "Year of Diagnosis Distribution", x = "Year", y = "Count") +
   theme_minimal() +
@@ -167,10 +167,10 @@ Now, lets explore SEER Combined Mets at DX (Bone, Brain, Liver, Lung, and Distan
 # - Groups data by metastasis categories and counts occurrences.
 p7 <- mydata %>%
   summarise(
-    Bone_Mets = sum(`SEER Combined Mets at DX-bone (2010+)` == "Yes", na.rm = TRUE),
-    Brain_Mets = sum(`SEER Combined Mets at DX-brain (2010+)` == "Yes", na.rm = TRUE),
-    Liver_Mets = sum(`SEER Combined Mets at DX-liver (2010+)` == "Yes", na.rm = TRUE),
-    Lung_Mets = sum(`SEER Combined Mets at DX-lung (2010+)` == "Yes", na.rm = TRUE),
+    Bone_Mets = sum(mets_bone == "Yes", na.rm = TRUE),
+    Brain_Mets = sum(mets_brain == "Yes", na.rm = TRUE),
+    Liver_Mets = sum(mets_liver == "Yes", na.rm = TRUE),
+    Lung_Mets = sum(mets_lung == "Yes", na.rm = TRUE),
       ) %>%
   pivot_longer(cols = everything(), names_to = "Metastasis_Site", values_to = "Count")
 
@@ -213,7 +213,7 @@ Now, lets explore SEER cause-specific death classification
 # - Counts the number of occurrences for each cause-specific death classification category.
 # - Also calculates the percentage for each category.
 p9 <- mydata %>%
-  group_by(`SEER cause-specific death classification`) %>%
+  group_by(cause_specific_death) %>%
   summarise(Count = n(), .groups = "drop") %>%
   mutate(Percentage = round((Count / sum(Count)) * 100, 1))
 
@@ -232,7 +232,7 @@ saveRDS(p9, file = summarytable_file)
 # Bar plot for SEER Cause-Specific Death Classification distribution
 # - Visualizes the distribution of cause-specific death classification.
 p10 <- p9 %>%
-  ggplot(aes(x = `SEER cause-specific death classification`, y = Count, fill = `SEER cause-specific death classification`)) + 
+  ggplot(aes(x =cause_specific_death, y = Count, fill = cause_specific_death)) + 
   geom_bar(stat = "identity") + 
   labs(title = "SEER Cause-Specific Death Classification", x = "Cause-Specific Death Category", y = "Count") +
   theme_minimal() +
@@ -256,11 +256,11 @@ Now, lets explore Survival Months
 # - Computes descriptive statistics for survival months.
 p11 <- mydata %>%
   summarise(
-    Min_Survival = min(`Survival months`, na.rm = TRUE),
-    Max_Survival = max(`Survival months`, na.rm = TRUE),
-    Mean_Survival = mean(`Survival months`, na.rm = TRUE),
-    Median_Survival = median(`Survival months`, na.rm = TRUE),
-    SD_Survival = sd(`Survival months`, na.rm = TRUE),
+    Min_Survival = min(survival_months, na.rm = TRUE),
+    Max_Survival = max(survival_months, na.rm = TRUE),
+    Mean_Survival = mean(survival_months, na.rm = TRUE),
+    Median_Survival = median(survival_months, na.rm = TRUE),
+    SD_Survival = sd(survival_months, na.rm = TRUE),
     Count = n()
   )
 
@@ -277,7 +277,7 @@ saveRDS(p11, file = summarytable_file)
 # Histogram for Survival Months distribution
 # - Visualizes the distribution of survival months.
 p12 <- mydata %>%
-  ggplot(aes(x = `Survival months`)) + 
+  ggplot(aes(x = survival_months)) + 
   geom_histogram(binwidth = 5, fill = "skyblue", color = "black") + 
   labs(title = "Survival Months Distribution", x = "Survival Months", y = "Count") +
   theme_minimal()

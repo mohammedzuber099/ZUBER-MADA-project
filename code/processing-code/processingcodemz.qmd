@@ -139,13 +139,74 @@ d6 <- d5 %>% dplyr::filter(!is.na(`Survival months`))
 skimr::skim(d6)
 ```
 
+## Excluding Patients with Unknown metastasis
+
+```{r}
+d7 <- d6 %>% dplyr::filter(
+    # Exclude patients where all four metastasis indicators are "Unknown"
+    !(`SEER Combined Mets at DX-bone (2010+)` == "Unknown" &
+      `SEER Combined Mets at DX-brain (2010+)` == "Unknown" &
+      `SEER Combined Mets at DX-liver (2010+)` == "Unknown" &
+      `SEER Combined Mets at DX-lung (2010+)` == "Unknown")
+)
+
+# Check the updated dataset after filtering
+skimr::skim(d7)
+
+```
+
+## Renaming all the variables for the ease of analysis 
+```{r}
+d8 <- d7 %>% dplyr::rename(
+    # Demographic Information
+    age_group = `Age recode with <1 year olds`,  # Age category of the patient
+    sex = Sex,  # Patient's sex
+    race = `Race recode (W, B, AI, API)`,  # Race classification
+    ethnicity = `Origin recode NHIA (Hispanic, Non-Hisp)`,  # Ethnicity classification
+    race_ethnicity = `Race and origin recode (NHW, NHB, NHAIAN, NHAPI, Hispanic)`,  # Combined race & ethnicity
+
+    # Diagnosis & Cancer Staging
+    diagnosis_year = `Year of diagnosis`,  # Year of cancer diagnosis
+    cancer_stage = `Derived AJCC Stage Group, 7th ed (2010-2015)`,  # Cancer staging classification
+    surgery_primary_site = `RX Summ--Surg Prim Site (1998+)`,  # Surgery performed at the primary site
+
+    # Metastasis Indicators
+    mets_bone = `SEER Combined Mets at DX-bone (2010+)`,  # Metastasis at bone
+    mets_brain = `SEER Combined Mets at DX-brain (2010+)`,  # Metastasis at brain
+    mets_liver = `SEER Combined Mets at DX-liver (2010+)`,  # Metastasis at liver
+    mets_lung = `SEER Combined Mets at DX-lung (2010+)`,  # Metastasis at lung
+    mets_distant_ln = `Mets at DX-Distant LN (2016+)`,  # Metastasis at distant lymph nodes
+
+    # Cause of Death & Survival
+    cause_of_death = `COD to site recode`,  # Cause of death classification
+    cause_specific_death = `SEER cause-specific death classification`,  # SEER-specific cause of death
+    other_cause_of_death = `SEER other cause of death classification`,  # Other causes of death
+    survival_months = `Survival months`,  # Number of survival months
+    survival_flag = `Survival months flag`,  # Flag indicating survival data availability
+    vital_status = `Vital status recode (study cutoff used)`,  # Vital status (Alive/Dead)
+    cod_km = `COD to site rec KM`,  # Cause of death classification for Kaplan-Meier
+
+    # Socioeconomic & Patient ID
+    patient_id = `Patient ID`,  # Unique patient identifier
+    median_income = `Median household income inflation adj to 2019`,  # Adjusted median income
+    rural_urban_code = `Rural-Urban Continuum Code`  # Rural-Urban classification
+)
+
+# Check new variable names to ensure proper renaming
+colnames(d8)
+
+```
+
+
 ## All done, data is clean now.
 
 Let's assign the final cleaned dataset to a variable. This makes it easier to add further cleaning steps above if needed.
 
 ```{r}
-processeddata <- d6  # Assign cleaned dataset
+processeddata <- d8  # Assign cleaned dataset
 ```
+
+
 
 # Save Data
 
@@ -157,7 +218,3 @@ For reference, see suggestions on storing processed data: [Saving Data into R Da
 save_data_location <- here::here("data", "processed-data", "processeddata.rds")
 saveRDS(processeddata, file = save_data_location)
 ```
-
-# Notes
-
-Removing individuals with "faulty" or missing data is one approach. However, depending on the question and analysis approach, different cleaning methods might be better (e.g., keeping individuals with some missing information).

@@ -1,3 +1,3 @@
 # analysis-code
 
-This folder contains  an R script with a bit of a statistical analysis. This is only implemented as an R script, no Quarto version. 
+This folder contains an Quarto with the bivariate and initial part of multivariate analysis a statistical analysis. I have done this in Quarto version. 

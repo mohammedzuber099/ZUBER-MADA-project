@@ -1,10 +1,8 @@
 #raw-data
 
-This folder should contain all raw data. As needed add sub-folders.
+This folder contain all raw data used in this project. 
 
-The dataset purposefully contains some faulty entries that need to be cleaned.
+I have saved the "codebook" in csv format in this folder. Please refer to the codebook for more understanding on the data. 
 
-I have saved the "codebook" in csv in the same folder 
-
-This raw data-set should generally not be edited by hand. It should instead be loaded and processed/cleaned using code.
+This raw data-set should not be edited by hand. It should instead be loaded and processed/cleaned using code.
 

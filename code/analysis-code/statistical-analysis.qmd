@@ -1,0 +1,535 @@
+---
+title: "Statistical analysis"
+format: html
+editor: visual
+---
+
+This Quarto document presents the statistical data analysis for this project, focusing on modeling. It includes bivariate analyses to identify associations between key variables and a multivariate Cox proportional hazards model to assess survival outcomes. The analysis is conducted using the tidymodels framework and survival package in R.
+# Loading Package
+```{r}
+#load needed packages. make sure they are installed.
+# Load required packages. Ensure they are installed.
+library(survival)  # For Cox regression analysis
+library(survminer) # For survival curve visualization
+library(broom)     # For tidying model output
+library(tidyverse) # For data manipulation
+library(here)      # For file path management (ensures reproducibility)
+library(stringr)  # Ensure string manipulation functions are available
+```
+# Loadinf data
+```{r}
+#path to data
+#note the use of the here() package and not absolute paths
+data_location <- here::here("data","processed-data","processeddata.rds")
+
+#load data. 
+mydata <- readRDS(data_location)
+```
+# Bivariate Analysis
+The dataset is preprocessed to ensure consistency for survival analysis. First, all "Unknown" values in metastasis variables are removed, retaining only "Yes" and "No" categories. Next, metastasis variables are converted to factors with "No" as the reference category to ensure proper hazard ratio interpretation in Cox regression. A survival object is then created using "Survival months" as the time variable and "Vital status recode (study cutoff used)" to define event occurrence. These steps standardize the data for valid and reproducible survival analysis.
+
+```{r}
+# Remove "Unknown" from metastasis variables (keeping only "Yes" and "No")
+mydata_filtered <- mydata %>%
+  filter(mets_bone %in% c("Yes", "No"),
+         mets_brain %in% c("Yes", "No"),
+         mets_liver %in% c("Yes", "No"),
+         mets_lung %in% c("Yes", "No"))
+
+# Relevel metastasis variables so "No" is the reference category
+mydata_filtered <- mydata_filtered %>%
+  mutate(across(c(mets_bone, 
+                  mets_brain, 
+                  mets_liver, 
+                  mets_lung), ~factor(.x, levels = c("No", "Yes"))))
+
+# Create the survival object for Cox regression
+surv_obj <- Surv(mydata_filtered$survival_months, mydata_filtered$vital_status == "Dead")
+
+
+```
+
+A Cox proportional hazards model is fitted separately for each metastasis variable to assess its impact on survival. The function dynamically constructs the regression formula and calculates hazard ratios (HRs) for "Yes" vs. "No" metastasis status. Results from all four models (bone, brain, liver, and lung metastases) are combined into a single table for better interpretation. The metastasis variable names are cleaned for clarity, and the final results are displayed and saved for reproducibility. This ensures a structured and systematic approach to analyzing the association between metastasis and survival outcomes.
+## Bivariate Analysis: Metastasis and Survival
+```{r}
+####################################################
+# Bivariate Analysis: Metastasis and Survival
+####################################################
+# Function to fit Cox regression for each metastasis variable
+run_cox <- function(var) {
+  formula <- as.formula(paste("surv_obj ~", paste0("`", var, "`")))  # Construct formula
+  cox_model <- coxph(formula, data = mydata_filtered)  # Fit Cox model
+  result <- broom::tidy(cox_model, exponentiate = TRUE)  # Convert log(HR) to HR
+  return(result)  # Return model results
+}
+
+# Run Cox regression for each metastasis type (Yes vs. No comparison only)
+cox_bone <- run_cox("mets_bone")
+cox_brain <- run_cox("mets_brain")
+cox_liver <- run_cox("mets_liver")
+cox_lung <- run_cox("mets_lung")
+
+# Combine the results into a single table
+cox_results <- bind_rows(cox_bone, cox_brain, cox_liver, cox_lung)
+
+# Rename terms for better readability
+cox_results <- cox_results %>%
+  mutate(term = case_when(
+    term == "mets_boneYes"  ~ "Bone Metastasis",
+    term == "mets_brainYes" ~ "Brain Metastasis",
+    term == "mets_liverYes" ~ "Liver Metastasis",
+    term == "mets_lungYes"  ~ "Lung Metastasis",
+    TRUE ~ term  # Keep other terms unchanged
+  ))
+
+# Display the updated results
+cox_results
+
+# Save Cox results for reproducibility
+saveRDS(cox_results, file = here::here("results", "tables", "mets_HR.rds"))
+
+
+```
+## KM curve Metastasis Bone
+```{r}
+ #Convert vital_status to a binary variable
+mydata_filtered$survival_status <- ifelse(mydata_filtered$vital_status == "Dead", 1, 0)
+
+# Create survival object
+surv_obj <- Surv(mydata_filtered$survival_months, mydata_filtered$survival_status)
+
+# Fit Kaplan-Meier survival curves for Bone Metastasis
+km_fit <- survfit(surv_obj ~ mets_bone, data = mydata_filtered)
+
+# Plot the Kaplan-Meier curves
+km_plot <- ggsurvplot(
+  km_fit,
+  data = mydata_filtered,
+  conf.int = TRUE,        # Show confidence intervals
+  pval = TRUE,            # Display p-value
+  risk.table = FALSE,      # Show risk table below the plot
+  legend.title = "Bone Metastasis",
+  legend.labs = c("No Bone Metastasis", "Bone Metastasis"),
+  xlab = "Time (months)", # Adjust based on your dataset
+  ylab = "Survival Probability",
+  ggtheme = theme_minimal(),
+  
+)
+
+# Print the KM plot
+print(km_plot)
+
+# Save the plot
+ggsave(filename = here::here("results", "figures", "KM_curve_bone_mets.png"), plot = km_plot$plot, dpi = 300, width = 8, height = 6)
+
+```
+## KM curve Metastasis Brain
+```{r}
+ ####################################################
+# Kaplan-Meier Analysis: Brain Metastasis and Survival
+####################################################
+
+# Load required libraries
+library(survival)
+library(survminer)
+
+# Convert vital_status to a binary variable
+mydata_filtered$survival_status <- ifelse(mydata_filtered$vital_status == "Dead", 1, 0)
+
+# Create survival object
+surv_obj <- Surv(mydata_filtered$survival_months, mydata_filtered$survival_status)
+
+# Fit Kaplan-Meier survival curves for Brain Metastasis
+km_fit <- survfit(surv_obj ~ mets_brain, data = mydata_filtered)
+
+# Plot the Kaplan-Meier curves
+km_plot <- ggsurvplot(
+  km_fit,
+  data = mydata_filtered,
+  conf.int = TRUE,        # Show confidence intervals
+  pval = TRUE,            # Display p-value
+  risk.table = FALSE,     # Hide risk table (Set to TRUE if needed)
+  legend.title = "Brain Metastasis",
+  legend.labs = c("No Brain Metastasis", "Brain Metastasis"),
+  xlab = "Time (months)", # Adjust based on your dataset
+  ylab = "Survival Probability",
+  ggtheme = theme_minimal()
+)
+
+# Print the KM plot
+print(km_plot)
+
+# Save the plot
+ggsave(filename = here::here("results", "figures", "KM_curve_brain_mets.png"), plot = km_plot$plot, dpi = 300, width = 8, height = 6)
+
+
+
+```
+## KM curve Metastasis Liver
+```{r}
+####################################################
+# Kaplan-Meier Analysis: Liver Metastasis and Survival
+####################################################
+
+# Load required libraries
+library(survival)
+library(survminer)
+
+# Convert vital_status to a binary variable
+mydata_filtered$survival_status <- ifelse(mydata_filtered$vital_status == "Dead", 1, 0)
+
+# Create survival object
+surv_obj <- Surv(mydata_filtered$survival_months, mydata_filtered$survival_status)
+
+# Fit Kaplan-Meier survival curves for Liver Metastasis
+km_fit <- survfit(surv_obj ~ mets_liver, data = mydata_filtered)
+
+# Plot the Kaplan-Meier curves
+km_plot <- ggsurvplot(
+  km_fit,
+  data = mydata_filtered,
+  conf.int = TRUE,        # Show confidence intervals
+  pval = TRUE,            # Display p-value
+  risk.table = FALSE,     # Hide risk table (Set to TRUE if needed)
+  legend.title = "Liver Metastasis",
+  legend.labs = c("No Liver Metastasis", "Liver Metastasis"),
+  xlab = "Time (months)", # Adjust based on your dataset
+  ylab = "Survival Probability",
+  ggtheme = theme_minimal()
+)
+
+# Print the KM plot
+print(km_plot)
+
+# Save the plot
+ggsave(filename = here::here("results", "figures", "KM_curve_liver_mets.png"), plot = km_plot$plot, dpi = 300, width = 8, height = 6)
+
+```
+
+## KM curve Metastasis Lung 
+```{r}
+####################################################
+# Kaplan-Meier Analysis: Lung Metastasis and Survival
+####################################################
+
+# Load required libraries
+library(survival)
+library(survminer)
+
+# Convert vital_status to a binary variable
+mydata_filtered$survival_status <- ifelse(mydata_filtered$vital_status == "Dead", 1, 0)
+
+# Create survival object
+surv_obj <- Surv(mydata_filtered$survival_months, mydata_filtered$survival_status)
+
+# Fit Kaplan-Meier survival curves for Lung Metastasis
+km_fit <- survfit(surv_obj ~ mets_lung, data = mydata_filtered)
+
+# Plot the Kaplan-Meier curves
+km_plot <- ggsurvplot(
+  km_fit,
+  data = mydata_filtered,
+  conf.int = TRUE,        # Show confidence intervals
+  pval = TRUE,            # Display p-value
+  risk.table = FALSE,     # Hide risk table (Set to TRUE if needed)
+  legend.title = "Lung Metastasis",
+  legend.labs = c("No Lung Metastasis", "Lung Metastasis"),
+  xlab = "Time (months)", # Adjust based on your dataset
+  ylab = "Survival Probability",
+  ggtheme = theme_minimal()
+)
+
+# Print the KM plot
+print(km_plot)
+
+# Save the plot
+ggsave(filename = here::here("results", "figures", "KM_curve_lung_mets.png"), plot = km_plot$plot, dpi = 300, width = 8, height = 6)
+```
+
+## Bivariate Analysis: Race and Survival
+
+The race variable is recoded as a factor with "White" as the reference category to ensure proper comparison in Cox regression. A separate model is fitted to assess the association between race and survival, with hazard ratios (HRs) calculated for Black, Asian or Pacific Islander, and American Indian/Alaska Native populations relative to White. The results are formatted for clarity, renaming the terms to indicate direct comparisons. Finally, the updated results are displayed and saved for reproducibility, allowing for structured and interpretable survival analysis by race.
+```{r}
+####################################################
+# Bivariate Analysis: Race and Survival
+####################################################
+
+# Recode the race variable as a factor, ensuring "White" is the reference category
+mydata_filtered <- mydata_filtered %>%
+  mutate(race = factor(race, 
+                                                 levels = c("White", "Black", "Asian or Pacific Islander", "American Indian/Alaska Native")))
+
+# Function to fit Cox regression for Race categories
+run_cox_race <- function() {
+  # Construct Cox model formula using race variable
+  formula <- as.formula("surv_obj ~ race")
+  
+  # Fit Cox model
+  cox_model <- coxph(formula, data = mydata_filtered)
+  
+  # Convert output to tidy format and exponentiate coefficients to get Hazard Ratios (HRs)
+  result <- broom::tidy(cox_model, exponentiate = TRUE) 
+  
+  
+  return(result)  # Return model results
+}
+
+# Run the Cox regression for Race categories
+cox_race_results <- run_cox_race()
+
+# Rename terms for better readability
+cox_race_results <- cox_race_results %>%
+  mutate(term = case_when(
+    term == "raceBlack" ~ "Black vs. White",
+    term == "raceAsian or Pacific Islander" ~ "Asian vs. White",
+    term == "raceAmerican Indian/Alaska Native" ~ "American Indian vs. White",
+    TRUE ~ term  # Keep other terms unchanged
+  ))
+
+# Display results
+cox_race_results
+
+# Save the results for reproducibility
+saveRDS(cox_race_results, file = here::here("results", "tables", "race_HR.rds"))
+
+```
+
+## Kaplan-Meier Survival Curve: Race and Survival
+
+```{r}
+####################################################
+# Kaplan-Meier Survival Curve: Race and Survival
+####################################################
+
+# Ensure survival variables are properly formatted
+mydata_filtered <- mydata_filtered %>% 
+  mutate(survival_months = as.numeric(survival_months),
+         vital_status = ifelse(vital_status == "Dead", 1, 0))
+
+# Handle NA values in survival_months
+if(any(is.na(mydata_filtered$survival_months))) {
+  cat("Warning: NAs introduced in survival_months due to coercion. Removing NAs for survival analysis.\n")
+  mydata_filtered <- mydata_filtered %>% filter(!is.na(survival_months))
+}
+
+# Define survival object
+surv_obj <- Surv(mydata_filtered$survival_months, mydata_filtered$vital_status)
+
+# Fit Kaplan-Meier survival model for Race
+fit_race <- survfit(surv_obj ~ race, data = mydata_filtered)
+
+# Generate Kaplan-Meier plot for Race categories
+ggsurvplot(fit_race, data = mydata_filtered, conf.int = TRUE, pval = TRUE, risk.table = TRUE, 
+           title = "Kaplan-Meier Survival Curves by Race", 
+           xlab = "Time in Months", ylab = "Survival Probability",
+           legend.title = "Race",
+           legend.labs = levels(mydata_filtered$race), # Dynamically assign race labels
+           xlim = c(0, 130), ggtheme = theme_minimal())
+# Save the plot
+ggsave(filename = here::here("results", "figures", "KM_curve_race.png"), plot = km_plot$plot, dpi = 300, width = 8, height = 6)
+```
+
+## Bivariate Analysis: Age and Survival
+The age variable is recoded as a factor with "20-24 years" set as the reference category to allow for meaningful comparisons in Cox regression. A separate model is fitted to evaluate the association between different age groups and survival outcomes, with hazard ratios (HRs) estimated relative to the 20-24 years category. The results are formatted to improve clarity, renaming each term to reflect direct age group comparisons. Finally, the updated results are displayed and saved for reproducibility, ensuring a structured and interpretable analysis of age-related survival differences.
+
+
+```{r}
+####################################################
+# Bivariate Analysis: Age and Survival
+####################################################
+
+# Function to fit Cox regression for Age groups
+run_cox_age <- function() {
+  # Construct Cox model formula using the updated age variable name
+  formula <- as.formula("surv_obj ~ age_group")
+  
+  # Fit Cox model
+  cox_model <- coxph(formula, data = mydata_filtered)
+  
+  # Convert output to tidy format and exponentiate coefficients to get Hazard Ratios (HRs)
+  result <- broom::tidy(cox_model, exponentiate = TRUE) 
+  
+  return(result)  # Return model results
+}
+
+# Run the Cox regression for Age categories
+cox_age_results <- run_cox_age()
+
+# Rename terms for better readability (comparing each group to 20-24 years)
+cox_age_results <- cox_age_results %>%
+  mutate(term = str_replace_all(term, "`", "")) %>%
+  mutate(term = case_when(
+    str_detect(term, "age_group25-29 years") ~ "25-29",
+    str_detect(term, "age_group30-34 years") ~ "30-34",
+    str_detect(term, "age_group35-39 years") ~ "35-39",
+    str_detect(term, "age_group40-44 years") ~ "40-44",
+    str_detect(term, "age_group45-49 years") ~ "45-49",
+    str_detect(term, "age_group50-54 years") ~ "50-54",
+    str_detect(term, "age_group55-59 years") ~ "55-59",
+    str_detect(term, "age_group60-64 years") ~ "60-64",
+    str_detect(term, "age_group65-69 years") ~ "65-69",
+    str_detect(term, "age_group70-74 years") ~ "70-74",
+    str_detect(term, "age_group75-79 years") ~ "75-79",
+    str_detect(term, "age_group80-84 years") ~ "80-84",
+    str_detect(term, "age_group85+ years") ~ "85+",
+    TRUE ~ term  # Keep other terms unchanged
+  ))
+
+# Display results
+cox_age_results
+
+# Save the results for reproducibility
+saveRDS(cox_age_results, file = here::here("results", "tables", "age_HR.rds"))
+
+```
+## Bivariate Analysis: Year of Diagnosis and Survival
+
+```{r}
+####################################################
+# Bivariate Analysis: Year of Diagnosis and Survival
+####################################################
+
+# Identify the earliest year available in the dataset to set as reference
+reference_year <- min(as.numeric(mydata_filtered$diagnosis_year), na.rm = TRUE)
+
+# Convert Year of Diagnosis to a factor with the reference year as baseline
+mydata_filtered <- mydata_filtered %>%
+  mutate(diagnosis_year = factor(diagnosis_year, 
+                                 levels = sort(unique(diagnosis_year), decreasing = FALSE)))
+
+# Function to fit Cox regression for Year of Diagnosis
+run_cox_year <- function() {
+  # Construct Cox model formula using diagnosis_year variable
+  formula <- as.formula("surv_obj ~ diagnosis_year")
+  
+  # Fit Cox model
+  cox_model <- coxph(formula, data = mydata_filtered)
+  
+  # Convert output to tidy format and exponentiate coefficients to get Hazard Ratios (HRs)
+  result <- broom::tidy(cox_model, exponentiate = TRUE) 
+  
+  return(result)  # Return model results
+}
+
+# Run the Cox regression for Year of Diagnosis
+cox_year_results <- run_cox_year()
+
+# Rename terms for better readability (comparing each year to the reference year)
+cox_year_results <- cox_year_results %>%
+  mutate(term = str_replace_all(term, "`", "")) %>%
+  mutate(term = case_when(
+    TRUE ~ paste0(term, " vs. ", reference_year)  # Compare each year with the reference
+  ))
+
+# Display results
+cox_year_results
+
+# Save the results for reproducibility
+saveRDS(cox_year_results, file = here::here("results", "tables", "year_HR.rds"))
+
+```
+
+## Bivariate Analysis: Median Household Income (Inflation-Adjusted to 2019)
+
+The median household income variable, inflation-adjusted to 2019, is recoded as a factor with "$75,000+" as the reference category to allow for clear comparisons in Cox regression. A separate model is fitted to assess the association between income levels and survival outcomes, with hazard ratios (HRs) estimated relative to the highest income group. The results are formatted for better readability by appending comparison labels for each income group against "$75,000+." Finally, the updated results are displayed and saved for reproducibility, ensuring a structured and interpretable analysis of socioeconomic disparities in survival.
+
+```{r}
+####################################################
+# Bivariate Analysis: Median Household Income (Inflation-Adjusted to 2019)
+####################################################
+# Convert Household Income to a factor with "$75,000+" as the reference category
+mydata_filtered <- mydata_filtered %>%
+  mutate(median_income = factor(median_income, 
+                                                                  levels = c("$75,000+", 
+                                                                             "$35,000 - $39,999", 
+                                                                             "$40,000 - $44,999", 
+                                                                             "$45,000 - $49,999", 
+                                                                             "$50,000 - $54,999",
+                                                                             "$55,000 - $59,999",
+                                                                             "$60,000 - $64,999",
+                                                                             "$65,000 - $69,999",
+                                                                             "$70,000 - $74,999")))
+
+# Function to fit Cox regression for Household Income
+run_cox_income <- function() {
+  # Construct Cox model formula using Household Income variable
+  formula <- as.formula("surv_obj ~ median_income")
+  
+  # Fit Cox model
+  cox_model <- coxph(formula, data = mydata_filtered)
+  
+  # Convert output to tidy format and exponentiate coefficients to get Hazard Ratios (HRs)
+  result <- broom::tidy(cox_model, exponentiate = TRUE) 
+  
+  # Add column for variable reference
+  result$Variable <- "Household Income"
+  
+  return(result)  # Return model results
+}
+
+# Run the Cox regression for Household Income
+cox_income_results <- run_cox_income()
+
+# Rename terms for better readability (comparing each income group to "$75,000+")
+cox_income_results <- cox_income_results %>%
+  mutate(term = str_replace_all(term, "`", "")) %>%
+  mutate(term = case_when(
+    TRUE ~ paste0(term, " vs. $75,000+")
+  ))
+
+# Display results
+cox_income_results
+
+# Save the results for reproducibility
+saveRDS(cox_income_results, file = here::here("results", "tables", "income_HR_75K.rds"))
+
+```
+
+# Multivariable Cox Proportional Hazards Model
+```{r}
+####################################################
+# Multivariable Cox Proportional Hazards Model
+####################################################
+
+# Define the multivariable Cox regression formula with all selected covariates
+multivariable_formula <- as.formula("surv_obj ~ 
+  mets_bone + 
+  mets_brain + 
+  mets_liver + 
+  mets_lung + 
+  race + 
+  age_group + 
+  diagnosis_year + 
+  median_income")
+
+# Fit the Cox proportional hazards model
+multivariable_cox <- coxph(multivariable_formula, data = mydata_filtered)
+
+# Convert model output to a tidy format and exponentiate coefficients to get Hazard Ratios (HRs)
+multivariable_results <- broom::tidy(multivariable_cox, exponentiate = TRUE) 
+
+# Rename terms for better readability in the output
+multivariable_results <- multivariable_results %>%
+  mutate(term = str_replace_all(term, "`", "")) %>%
+  mutate(term = case_when(
+    term == "mets_boneYes" ~ "Bone Metastasis",
+    term == "mets_brainYes" ~ "Brain Metastasis",
+    term == "mets_liverYes" ~ "Liver Metastasis",
+    term == "mets_lungYes" ~ "Lung Metastasis",
+    term == "raceBlack" ~ "Black",
+    term == "raceAsian or Pacific Islander" ~ "Asian or Pacific Islander",
+    term == "raceAmerican Indian/Alaska Native" ~ "American Indian/Alaska Native",
+    str_detect(term, "age_group") ~ str_remove(term, "age_group") %>% str_remove(" vs. 20-24 years"),
+    str_detect(term, "household_income") ~ str_remove(term, "household_income") %>% str_remove(" vs. \\$75,000\\+"),
+    TRUE ~ term  # Keep other terms unchanged
+  ))
+
+# Display the multivariable Cox model results
+multivariable_results
+
+# Save the results for reproducibility
+saveRDS(multivariable_results, file = here::here("results", "tables", "multivariable_cox_HR.rds"))
+
+
+```
+
