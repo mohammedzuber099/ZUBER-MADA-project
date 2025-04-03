@@ -4,8 +4,8 @@ format: html
 editor: visual
 ---
 
-This Quarto document presents the statistical data analysis for this project, focusing on modeling. It includes bivariate analyses to identify associations between key variables and a multivariate Cox proportional hazards model to assess survival outcomes. The analysis is conducted using the tidymodels framework and survival package in R.
-# Loading Package
+This Quarto document presents the statistical data analysis for this project, focusing on modeling. It includes bivariate analyses to identify associations between key variables and a multivariate Cox proportional hazards model to assess survival outcomes. The analysis is conducted using the tidymodels framework and survival package in R. \# Loading Package
+
 ```{r}
 #load needed packages. make sure they are installed.
 # Load required packages. Ensure they are installed.
@@ -15,8 +15,20 @@ library(broom)     # For tidying model output
 library(tidyverse) # For data manipulation
 library(here)      # For file path management (ensures reproducibility)
 library(stringr)  # Ensure string manipulation functions are available
+library(tidymodels)
+library(vip)
+library(themis)
+library(randomForestSRC)
+library(dplyr)
+library(ranger)
+library(survival)
+library(pROC)
+library(caret)
+library(glmnet)
 ```
-# Loadinf data
+
+# Loading data
+
 ```{r}
 #path to data
 #note the use of the here() package and not absolute paths
@@ -25,7 +37,9 @@ data_location <- here::here("data","processed-data","processeddata.rds")
 #load data. 
 mydata <- readRDS(data_location)
 ```
+
 # Bivariate Analysis
+
 The dataset is preprocessed to ensure consistency for survival analysis. First, all "Unknown" values in metastasis variables are removed, retaining only "Yes" and "No" categories. Next, metastasis variables are converted to factors with "No" as the reference category to ensure proper hazard ratio interpretation in Cox regression. A survival object is then created using "Survival months" as the time variable and "Vital status recode (study cutoff used)" to define event occurrence. These steps standardize the data for valid and reproducible survival analysis.
 
 ```{r}
@@ -49,8 +63,8 @@ surv_obj <- Surv(mydata_filtered$survival_months, mydata_filtered$vital_status =
 
 ```
 
-A Cox proportional hazards model is fitted separately for each metastasis variable to assess its impact on survival. The function dynamically constructs the regression formula and calculates hazard ratios (HRs) for "Yes" vs. "No" metastasis status. Results from all four models (bone, brain, liver, and lung metastases) are combined into a single table for better interpretation. The metastasis variable names are cleaned for clarity, and the final results are displayed and saved for reproducibility. This ensures a structured and systematic approach to analyzing the association between metastasis and survival outcomes.
-## Bivariate Analysis: Metastasis and Survival
+A Cox proportional hazards model is fitted separately for each metastasis variable to assess its impact on survival. The function dynamically constructs the regression formula and calculates hazard ratios (HRs) for "Yes" vs. "No" metastasis status. Results from all four models (bone, brain, liver, and lung metastases) are combined into a single table for better interpretation. The metastasis variable names are cleaned for clarity, and the final results are displayed and saved for reproducibility. This ensures a structured and systematic approach to analyzing the association between metastasis and survival outcomes. \## Bivariate Analysis: Metastasis and Survival
+
 ```{r}
 ####################################################
 # Bivariate Analysis: Metastasis and Survival
@@ -90,7 +104,9 @@ saveRDS(cox_results, file = here::here("results", "tables", "mets_HR.rds"))
 
 
 ```
+
 ## KM curve Metastasis Bone
+
 ```{r}
  #Convert vital_status to a binary variable
 mydata_filtered$survival_status <- ifelse(mydata_filtered$vital_status == "Dead", 1, 0)
@@ -123,7 +139,9 @@ print(km_plot)
 ggsave(filename = here::here("results", "figures", "KM_curve_bone_mets.png"), plot = km_plot$plot, dpi = 300, width = 8, height = 6)
 
 ```
+
 ## KM curve Metastasis Brain
+
 ```{r}
  ####################################################
 # Kaplan-Meier Analysis: Brain Metastasis and Survival
@@ -165,7 +183,9 @@ ggsave(filename = here::here("results", "figures", "KM_curve_brain_mets.png"), p
 
 
 ```
+
 ## KM curve Metastasis Liver
+
 ```{r}
 ####################################################
 # Kaplan-Meier Analysis: Liver Metastasis and Survival
@@ -206,7 +226,8 @@ ggsave(filename = here::here("results", "figures", "KM_curve_liver_mets.png"), p
 
 ```
 
-## KM curve Metastasis Lung 
+## KM curve Metastasis Lung
+
 ```{r}
 ####################################################
 # Kaplan-Meier Analysis: Lung Metastasis and Survival
@@ -249,6 +270,7 @@ ggsave(filename = here::here("results", "figures", "KM_curve_lung_mets.png"), pl
 ## Bivariate Analysis: Race and Survival
 
 The race variable is recoded as a factor with "White" as the reference category to ensure proper comparison in Cox regression. A separate model is fitted to assess the association between race and survival, with hazard ratios (HRs) calculated for Black, Asian or Pacific Islander, and American Indian/Alaska Native populations relative to White. The results are formatted for clarity, renaming the terms to indicate direct comparisons. Finally, the updated results are displayed and saved for reproducibility, allowing for structured and interpretable survival analysis by race.
+
 ```{r}
 ####################################################
 # Bivariate Analysis: Race and Survival
@@ -330,8 +352,8 @@ ggsave(filename = here::here("results", "figures", "KM_curve_race.png"), plot = 
 ```
 
 ## Bivariate Analysis: Age and Survival
-The age variable is recoded as a factor with "20-24 years" set as the reference category to allow for meaningful comparisons in Cox regression. A separate model is fitted to evaluate the association between different age groups and survival outcomes, with hazard ratios (HRs) estimated relative to the 20-24 years category. The results are formatted to improve clarity, renaming each term to reflect direct age group comparisons. Finally, the updated results are displayed and saved for reproducibility, ensuring a structured and interpretable analysis of age-related survival differences.
 
+The age variable is recoded as a factor with "20-24 years" set as the reference category to allow for meaningful comparisons in Cox regression. A separate model is fitted to evaluate the association between different age groups and survival outcomes, with hazard ratios (HRs) estimated relative to the 20-24 years category. The results are formatted to improve clarity, renaming each term to reflect direct age group comparisons. Finally, the updated results are displayed and saved for reproducibility, ensuring a structured and interpretable analysis of age-related survival differences.
 
 ```{r}
 ####################################################
@@ -382,6 +404,7 @@ cox_age_results
 saveRDS(cox_age_results, file = here::here("results", "tables", "age_HR.rds"))
 
 ```
+
 ## Bivariate Analysis: Year of Diagnosis and Survival
 
 ```{r}
@@ -431,7 +454,7 @@ saveRDS(cox_year_results, file = here::here("results", "tables", "year_HR.rds"))
 
 ## Bivariate Analysis: Median Household Income (Inflation-Adjusted to 2019)
 
-The median household income variable, inflation-adjusted to 2019, is recoded as a factor with "$75,000+" as the reference category to allow for clear comparisons in Cox regression. A separate model is fitted to assess the association between income levels and survival outcomes, with hazard ratios (HRs) estimated relative to the highest income group. The results are formatted for better readability by appending comparison labels for each income group against "$75,000+." Finally, the updated results are displayed and saved for reproducibility, ensuring a structured and interpretable analysis of socioeconomic disparities in survival.
+The median household income variable, inflation-adjusted to 2019, is recoded as a factor with "\$75,000+" as the reference category to allow for clear comparisons in Cox regression. A separate model is fitted to assess the association between income levels and survival outcomes, with hazard ratios (HRs) estimated relative to the highest income group. The results are formatted for better readability by appending comparison labels for each income group against "\$75,000+." Finally, the updated results are displayed and saved for reproducibility, ensuring a structured and interpretable analysis of socioeconomic disparities in survival.
 
 ```{r}
 ####################################################
@@ -486,6 +509,7 @@ saveRDS(cox_income_results, file = here::here("results", "tables", "income_HR_75
 ```
 
 # Multivariable Cox Proportional Hazards Model
+
 ```{r}
 ####################################################
 # Multivariable Cox Proportional Hazards Model
@@ -530,6 +554,401 @@ multivariable_results
 # Save the results for reproducibility
 saveRDS(multivariable_results, file = here::here("results", "tables", "multivariable_cox_HR.rds"))
 
+```
+
+# Machine Learning Model
+
+I used the random forest for predicting cause specifc death but the model did not perform well. Therefore, using the random survival forest model.
+
+A random forest classification model was developed to predict cause-specific death using demographic and clinical features, including metastasis status, age group, race, income, and year of diagnosis. The model was trained on 80% of the data and evaluated on a 20% test set, with hyperparameter tuning via 5-fold cross-validation. Despite identifying several important predictors—most notably lung and liver metastases, age group 45–49, bone metastasis, and race—the model demonstrated poor overall predictive performance. The area under the ROC curve (AUC) was 0.39, indicating that the model performed only marginally better than random chance in distinguishing between patients who died and those who survived. The confusion matrix further reflected this limitation, showing moderate sensitivity but poor specificity. These results suggest that while random forest can highlight relevant variables, it is not well-suited for modeling survival outcomes in the presence of censoring. In contrast, approaches such as random survival forests (RSF) or Cox-based models offer more reliable and interpretable performance in survival analysis contexts. \## Random Forest
+
+```{r}
+####################################################
+# Random Forest with Class Balancing (Downsampling)
+# Goal: Predict cause-specific death using SEER variables
+####################################################
+
+# Step 1: Prepare the dataset
+rf_data <- mydata_filtered %>%
+  select(cause_specific_death, age_group, race, median_income, 
+         mets_bone, mets_brain, mets_liver, mets_lung, diagnosis_year) %>%
+  drop_na()
+
+# Step 2: Recode outcome to binary factor ("Yes"/"No")
+rf_data <- rf_data %>%
+  mutate(cause_specific_death = case_when(
+    cause_specific_death == "Dead (attributable to this cancer dx)" ~ "Yes",
+    cause_specific_death == "Alive or dead of other cause" ~ "No",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!is.na(cause_specific_death)) %>%
+  mutate(cause_specific_death = factor(cause_specific_death, levels = c("No", "Yes")))
+
+# Step 3: Split the data (80% training / 20% testing), stratified by class
+set.seed(123)
+rf_split <- initial_split(rf_data, prop = 0.8, strata = cause_specific_death)
+rf_train <- training(rf_split)
+rf_test  <- testing(rf_split)
+
+# Step 4: Preprocessing recipe with downsampling for class balance
+rf_recipe <- recipe(cause_specific_death ~ ., data = rf_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_zv(all_predictors()) %>%
+  step_downsample(cause_specific_death)
+
+# Step 5: Define random forest model (with hyperparameter tuning)
+rf_model <- rand_forest(mtry = tune(), trees = 500, min_n = tune()) %>%
+  set_engine("ranger", importance = "impurity") %>%
+  set_mode("classification")
+
+# Step 6: Create workflow
+rf_workflow <- workflow() %>%
+  add_recipe(rf_recipe) %>%
+  add_model(rf_model)
+
+# Step 7: 5-fold cross-validation
+set.seed(123)
+rf_folds <- vfold_cv(rf_train, v = 5)
+
+# Step 8: Tune the model
+rf_tuned <- tune_grid(
+  rf_workflow,
+  resamples = rf_folds,
+  grid = 10,
+  metrics = metric_set(roc_auc, accuracy)
+)
+
+# Step 9: Select best model based on ROC AUC
+best_rf <- select_best(rf_tuned, metric = "roc_auc")
+
+# Step 10: Finalize and train final model
+final_rf <- finalize_workflow(rf_workflow, best_rf)
+rf_fit <- fit(final_rf, data = rf_train)
+
+# Step 11: Make predictions on test set
+rf_predictions <- predict(rf_fit, rf_test, type = "prob") %>%
+  bind_cols(predict(rf_fit, rf_test)) %>%
+  bind_cols(rf_test)
+
+# Step 12: Evaluate model
+rf_auc <- roc_auc(rf_predictions, truth = cause_specific_death, .pred_Yes)
+rf_cm <- conf_mat(rf_predictions, truth = cause_specific_death, estimate = .pred_class)
+
+# Step 13: Variable importance plot
+vip_plot <- rf_fit %>%
+  extract_fit_parsnip() %>%
+  vip(num_features = 10)
+
+# Step 14: Print results
+rf_auc
+rf_cm
+vip_plot
+
+# Step 15: Save outputs
+saveRDS(rf_fit, here("results", "tables", "random_forest_balanced_model.rds"))
+saveRDS(rf_auc, here("results", "tables", "random_forest_balanced_auc.rds"))
+saveRDS(rf_cm, here("results", "tables", "random_forest_balanced_confusion_matrix.rds"))
+ggsave(filename = here("results", "figures", "vip_plot_rf_balanced.png"), plot = vip_plot, dpi = 300, width = 8, height = 6)
+```
+
+## Random Survival Forest
+
+A random survival forest model was trained on clinical and demographic features to predict survival outcomes. Variable importance analysis revealed that age group, median household income, diagnosis year, and race were the top contributors to survival prediction, whereas metastasis variables (bone, lung, liver, brain) were less influential. The model demonstrated moderate performance, with an AUC of \~0.72 at 12 months. While sensitivity was high (86.5%), specificity remained modest (47.9%), indicating that the model more accurately identified patients who survived. Individual-level survival curves were generated, illustrating patient-specific risk trajectories.
+
+```{r}
+####################################################
+# Random Survival Forest (RSF)
+# Goal: Model survival time using censored data
+####################################################
+
+# Step 1: Prepare and clean data
+rsf_data <- mydata_filtered %>%
+  mutate(event = vital_status) %>%
+  select(survival_months, event,
+         mets_lung, mets_liver, mets_bone, mets_brain,
+         race, age_group, median_income, diagnosis_year) %>%
+  # Drop rows with any NA in predictors or outcome
+  filter(if_all(everything(), ~ !is.na(.))) %>%
+  mutate(
+    mets_lung = as.factor(mets_lung),
+    mets_liver = as.factor(mets_liver),
+    mets_bone = as.factor(mets_bone),
+    mets_brain = as.factor(mets_brain),
+    race = as.factor(race),
+    age_group = as.factor(age_group),
+    median_income = as.factor(median_income),
+    diagnosis_year = as.factor(diagnosis_year)
+  )
+
+# Step 2: Create survival object
+rsf_data$surv_obj <- with(rsf_data, Surv(survival_months, event))
+
+# Step 3: Fit survival random forest using ranger
+rsf_model <- ranger(
+  formula = surv_obj ~ mets_lung + mets_liver + mets_bone + mets_brain +
+    race + age_group + median_income + diagnosis_year,
+  data = rsf_data,
+  num.trees = 300,
+  mtry = 3,
+  splitrule = "logrank",  # For survival
+  importance = "impurity",
+  seed = 123
+)
+
+# Step 4: Plot variable importance
+vip(rsf_model)
 
 ```
 
+```{r}
+####################################################
+# RSF Results: Top Variables, Survival Prediction, AUC & Confusion Matrix
+####################################################
+# --- Step 1: Top Variable Importance ---
+importance_df <- data.frame(
+  variable = names(rsf_model$variable.importance),
+  importance = rsf_model$variable.importance
+) %>%
+  arrange(desc(importance))
+
+# View top 10
+head(importance_df, 10)
+
+# Save top 10
+write.csv(head(importance_df, 10), here::here("results", "tables", "top_10_rsf_variables.csv"), row.names = FALSE)
+
+# Plot top 10 variables
+vip::vip(rsf_model, num_features = 10)
+
+# --- Step 2: Predict Survival Curves ---
+# Predict full survival curve for all patients
+surv_preds <- predict(rsf_model, data = rsf_data, type = "response")
+
+
+# Plot survival curve for the first patient
+plot(rsf_model$unique.death.times, surv_preds$survival[1, ], type = "l",
+     xlab = "Time (months)", ylab = "Survival Probability",
+     main = "Survival Curve for Patient 1")
+
+# --- Step 3: Classify Patients Based on Survival at 12 Months ---
+# Choose cutoff time point (e.g., 12 months)
+target_time <- 12
+closest_index <- which.min(abs(rsf_model$unique.death.times - target_time))
+
+# Predicted survival prob at 12 months
+pred_surv_12 <- surv_preds$survival[, closest_index]
+
+# Convert to binary prediction: 1 = died before 12 months (low survival prob)
+pred_class <- ifelse(pred_surv_12 < 0.5, 1, 0)
+true_class <- rsf_data$event  # Actual: 1 = dead, 0 = alive
+
+# --- Step 4: Confusion Matrix ---
+conf_matrix <- caret::confusionMatrix(factor(pred_class), factor(true_class))
+print(conf_matrix)
+
+# --- Step 5: ROC Curve and AUC ---
+roc_obj <- roc(response = true_class, predictor = 1 - pred_surv_12)
+auc_value <- auc(roc_obj)
+print(paste("AUC at 12 months:", round(auc_value, 3)))
+
+# Plot ROC
+plot(roc_obj, main = "ROC Curve at 12 Months", col = "blue", lwd = 2)
+
+# --- Step 6: Save Outputs ---
+# Create and save top variable importance plot
+importance_plot <- vip::vip(rsf_model, num_features = 10)
+
+ggsave(
+  filename = here::here("results", "figures", "rsf_variable_importance.png"),
+  plot = importance_plot,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+# Save survival curve plot using base R
+png(filename = here::here("results", "figures", "rsf_survival_curve_patient1.png"),
+    width = 800, height = 600)
+
+plot(rsf_model$unique.death.times, surv_preds$survival[1, ], type = "l",
+     xlab = "Time (months)", ylab = "Survival Probability",
+     main = "Survival Curve for Patient 1", col = "darkgreen", lwd = 2)
+
+dev.off()
+
+# Save ROC curve plot using base R
+png(filename = here::here("results", "figures", "rsf_auc_12mo.png"),
+    width = 800, height = 600)
+
+plot(roc_obj, main = "ROC Curve at 12 Months", col = "blue", lwd = 2)
+dev.off()
+
+# Save confusion matrix text
+sink(file = here::here("results", "tables", "rsf_confusion_matrix.txt"))
+print(conf_matrix)
+sink()
+
+# Optional: Save a visual confusion matrix (if you have `autoplot` or ggplot-based CM)
+# e.g., using fourfoldplot for base R
+png(filename = here::here("results", "figures", "rsf_conf_matrix_12mo.png"),
+    width = 800, height = 600)
+
+fourfoldplot(conf_matrix$table, color = c("#E41A1C", "#377EB8"),
+             main = "RSF Confusion Matrix (12 Months)")
+
+dev.off()
+
+
+```
+
+## Lasso-Cox Model
+
+A LASSO-penalized Cox proportional hazards model was applied to the survival dataset to perform variable selection and reduce model complexity. Cross-validation identified the optimal penalty parameter (λ) that minimized the partial likelihood deviance. The model selected 10 predictors with non-zero coefficients, including all four metastasis variables (mets_lung, mets_liver, mets_bone, mets_brain) and several younger age groups (with negative coefficients, indicating lower risk). The results support the prognostic value of metastasis presence and younger age in overall survival prediction.
+
+```{r}
+####################################################
+# LASSO Cox Regression using glmnet
+####################################################
+# Step 1: Prepare data
+# Convert all categorical variables to dummy variables
+# Step 1: Prepare data
+lasso_data <- rsf_data %>%
+  select(survival_months, event, mets_lung, mets_liver, mets_bone, mets_brain,
+         age_group, race, median_income, diagnosis_year) %>%
+  filter(if_all(everything(), ~ !is.na(.))) %>%      # Remove rows with any NA
+  filter(survival_months > 0)                        # Remove 0 or negative times
+
+
+# Create model matrix (dummy coding all predictors)
+x <- model.matrix(~ mets_lung + mets_liver + mets_bone + mets_brain +
+                    age_group + race + median_income + diagnosis_year,
+                  data = lasso_data)[, -1]  # drop intercept
+
+# Create survival object
+y <- Surv(lasso_data$survival_months, lasso_data$event)
+
+# Step 2: Run cross-validated LASSO Cox
+set.seed(123)
+cvfit <- cv.glmnet(x, y, family = "cox", alpha = 1)
+
+# Plot cross-validation curve
+plot(cvfit)
+
+# Step 3: Extract best lambda and coefficients
+best_lambda <- cvfit$lambda.min
+lasso_coef <- coef(cvfit, s = "lambda.min")
+
+# Convert to tidy format
+lasso_selected <- as.data.frame(as.matrix(lasso_coef))
+lasso_selected <- lasso_selected %>%
+  tibble::rownames_to_column("variable") %>%
+  rename(coefficient = `1`) %>%
+  filter(coefficient != 0)
+
+# Step 4: View selected variables
+print(lasso_selected)
+
+# Optional: Save selected variables
+write.csv(lasso_selected, "results/tables/lasso_selected_variables.csv", row.names = FALSE)
+
+```
+
+```{r}
+####################################################
+# LASSO Cox: AUC and Confusion Matrix at 12 Months
+####################################################
+
+# Step 1: Use same cleaned dataset
+# Make sure this matches the data used to train LASSO
+lasso_data <- rsf_data %>%
+  select(survival_months, event, mets_lung, mets_liver, mets_bone, mets_brain,
+         age_group, race, median_income, diagnosis_year) %>%
+  filter(if_all(everything(), ~ !is.na(.))) %>%
+  filter(survival_months > 0)
+
+# Model matrix
+x <- model.matrix(~ mets_lung + mets_liver + mets_bone + mets_brain +
+                    age_group + race + median_income + diagnosis_year,
+                  data = lasso_data)[, -1]
+
+# Step 2: Predict linear risk scores
+risk_scores <- predict(cvfit, newx = x, s = "lambda.min", type = "link")
+
+# Step 3: Define binary outcome at 12 months
+target_time <- 12
+true_class <- ifelse(lasso_data$survival_months <= target_time & lasso_data$event == 1, 1, 0)
+
+# Step 4: AUC
+roc_obj <- roc(response = true_class, predictor = as.vector(risk_scores))
+auc_val <- auc(roc_obj)
+print(paste("AUC at 12 months:", round(auc_val, 3)))
+
+# Step 5: Confusion Matrix (You can choose threshold = 0 by default or use Youden index)
+predicted_class <- ifelse(risk_scores > 0, 1, 0)
+
+# Confusion Matrix
+conf_matrix <- confusionMatrix(factor(predicted_class), factor(true_class), positive = "1")
+print(conf_matrix)
+
+```
+
+## Comparing the models
+
+I compared three modeling approaches to predict 12-month survival outcomes: Random Survival Forest (RSF), LASSO Cox regression, and traditional Random Forest (RF). RSF achieved the highest AUC (0.74), indicating superior discrimination, and balanced sensitivity (86.5%) and specificity (47.9%). LASSO Cox achieved slightly lower AUC (0.66) but had comparable sensitivity and slightly better accuracy. The RF classifier performed poorly (AUC = 0.39), highlighting the limitations of using classification models for censored survival data. RSF is optimal for prediction, while LASSO offers interpretability and variable selection.
+
+```{r}
+####################################################
+# Compare RSF vs LASSO Cox: AUC & Confusion Matrix
+# Fixed time point: 12 months
+####################################################
+
+# Step 1: Common dataset for both models
+eval_data <- rsf_data %>%
+  select(survival_months, event, mets_lung, mets_liver, mets_bone, mets_brain,
+         age_group, race, median_income, diagnosis_year) %>%
+  filter(if_all(everything(), ~ !is.na(.))) %>%
+  filter(survival_months > 0)
+
+# Define event status by 12 months
+target_time <- 12
+true_class <- ifelse(eval_data$survival_months <= target_time & eval_data$event == 1, 1, 0)
+
+##############################################
+# Part 1: RSF Model Predictions
+##############################################
+# Predict survival probabilities
+rsf_preds <- predict(rsf_model, data = eval_data, type = "response")
+rsf_surv12 <- rsf_preds$survival[, which.min(abs(rsf_model$unique.death.times - target_time))]
+rsf_pred_class <- ifelse(rsf_surv12 < 0.5, 1, 0)
+
+# AUC
+rsf_roc <- roc(response = true_class, predictor = 1 - rsf_surv12)
+rsf_auc <- auc(rsf_roc)
+print(paste("RSF AUC:", round(rsf_auc, 3)))
+
+# Confusion Matrix
+rsf_cm <- confusionMatrix(factor(rsf_pred_class), factor(true_class), positive = "1")
+print(rsf_cm)
+
+##############################################
+# Part 2: LASSO Cox Model Predictions
+##############################################
+# Create model matrix
+x_lasso <- model.matrix(~ mets_lung + mets_liver + mets_bone + mets_brain +
+                          age_group + race + median_income + diagnosis_year,
+                        data = eval_data)[, -1]
+
+# Linear risk scores from LASSO Cox
+lasso_scores <- predict(cvfit, newx = x_lasso, s = "lambda.min", type = "link")
+lasso_pred_class <- ifelse(lasso_scores > 0, 1, 0)
+
+# AUC
+lasso_roc <- roc(response = true_class, predictor = as.vector(lasso_scores))
+lasso_auc <- auc(lasso_roc)
+print(paste("LASSO Cox AUC:", round(lasso_auc, 3)))
+
+# Confusion Matrix
+lasso_cm <- confusionMatrix(factor(lasso_pred_class), factor(true_class), positive = "1")
+print(lasso_cm)
+
+```

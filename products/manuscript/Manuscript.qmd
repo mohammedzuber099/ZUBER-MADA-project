@@ -13,7 +13,6 @@ editor:
     wrap: sentence
 ---
 
-
 ```{r, echo=FALSE, message=FALSE}
 # load a few R packages
 library(here)
@@ -122,6 +121,18 @@ In the bivariate analysis, we fitted separate Cox regression models for each var
 For the multivariate analysis, we constructed a Cox model incorporating all covariates simultaneously to adjust for potential confounders and determine independent predictors of survival.
 A Cox regression model was performed to compute the adjusted Hazard Ratios (aHR).
 
+### Machine leaning model
+
+I applied a Random Survival Forest (RSF) model to evaluate the impact of clinical and demographic variables on overall survival time.
+RSF is a non-parametric ensemble learning method specifically designed for right-censored survival data.
+It extends the traditional random forest approach by using survival splitting rules and ensemble cumulative hazard estimates.
+The outcome of interest was overall survival time in months, with vital status (0 = alive, 1 = dead) as the event indicator.
+Predictor variables included metastasis status (bone, liver, lung, brain), age group, race, year of diagnosis, and median household income.
+All categorical variables were converted to factors, as required by the randomForestSRC package in R.
+The model was trained using 500 trees, and variable importance was assessed using the impurity measure.
+Model performance was evaluated through time-dependent ROC analysis, confusion matrix, and individualized survival curve prediction.
+The RSF approach enabled flexible modeling of complex interactions and non-linear effects, offering an interpretable and robust alternative to traditional Cox models.
+
 {{< pagebreak >}}
 
 # Results
@@ -213,6 +224,7 @@ knitr::include_graphics(here("results","edafigures","edametsatdxdistribution.png
 ```
 
 ## Basic statistical analysis
+
 ### Bivariate Analysis: Metastasis and Survival
 
 In the bivariate Cox proportional hazards analysis, all four metastasis types were significantly associated with an increased risk of mortality.
@@ -228,7 +240,6 @@ These findings indicate that the presence of metastases, particularly in the bra
 resulttable=readRDS(here("results", "tables", "mets_HR.rds"))
 knitr::kable(resulttable)
 ```
-
 
 @fig-km-curve-bone-mets illustrates the survival probability of patients with and without bone metastasis over time.
 The red curve represents patients without bone metastasis, while the blue curve represents those with bone metastasis.
@@ -270,8 +281,14 @@ The log-rank test (p \< 0.0001) confirms a statistically significant difference,
 #| echo: FALSE
 knitr::include_graphics(here("results", "figures", "KM_curve_lung_mets.png"))
 ```
+
 ### Bivariate Analysis: Race and Survival
-Patients identified as  had significantly worse survival outcomes than White patients, with a 37% higher risk of death (HR = 1.37, p < 0.0001). In contrast, Asian patients had a lower risk of death compared to White patients (HR = 0.86, p = 0.0076), suggesting a potential survival advantage. The survival difference between American Indian and White patients was not statistically significant (HR = 1.21, p = 0.29), indicating no clear evidence of an increased or decreased risk. @tbl-summaryhrrace shows the HR for patients with different race.
+
+Patients identified as had significantly worse survival outcomes than White patients, with a 37% higher risk of death (HR = 1.37, p \< 0.0001).
+In contrast, Asian patients had a lower risk of death compared to White patients (HR = 0.86, p = 0.0076), suggesting a potential survival advantage.
+The survival difference between American Indian and White patients was not statistically significant (HR = 1.21, p = 0.29), indicating no clear evidence of an increased or decreased risk.
+@tbl-summaryhrrace shows the HR for patients with different race.
+
 ```{r}
 #| label: tbl-summaryhrrace
 #| tbl-cap: "Proportional hazards analysis for different Race."
@@ -279,8 +296,15 @@ Patients identified as  had significantly worse survival outcomes than White pat
 resulttable=readRDS(here("results", "tables", "race_HR.rds"))
 knitr::kable(resulttable)
 ```
+
 ### Bivariate Analysis: Age and Survival
-The hazard ratio (HR) estimates for different age groups indicate a general trend of increasing risk with age, though statistical significance varies. Compared to the reference group (20-24 years), younger age groups (25-74 years) show HRs between 3.5 and 6.2, but their p-values are above 0.05, suggesting no statistically significant difference in survival risk. However, individuals aged 80-84 years (HR = 7.99, p = 0.038) and 85+ years (HR = 11.01, p = 0.017) have significantly higher mortality risk, indicating poorer survival outcomes in older patients. These findings suggest that age is an important predictor of survival, with the highest risk observed in the oldest age group. @tbl-summaryhrage shows the HR for diferrent age groups.
+
+The hazard ratio (HR) estimates for different age groups indicate a general trend of increasing risk with age, though statistical significance varies.
+Compared to the reference group (20-24 years), younger age groups (25-74 years) show HRs between 3.5 and 6.2, but their p-values are above 0.05, suggesting no statistically significant difference in survival risk.
+However, individuals aged 80-84 years (HR = 7.99, p = 0.038) and 85+ years (HR = 11.01, p = 0.017) have significantly higher mortality risk, indicating poorer survival outcomes in older patients.
+These findings suggest that age is an important predictor of survival, with the highest risk observed in the oldest age group.
+@tbl-summaryhrage shows the HR for diferrent age groups.
+
 ```{r}
 #| label: tbl-summaryhrage
 #| tbl-cap: "Proportional hazards analysis for different age group."
@@ -288,30 +312,57 @@ The hazard ratio (HR) estimates for different age groups indicate a general tren
 resulttable=readRDS(here("results", "tables", "age_HR.rds"))
 knitr::kable(resulttable)
 ```
+
 ### Multivariable analysis
 
-The multivariable Cox proportional hazards model results indicate that metastasis to the bone (HR = 1.30, p < 0.001), brain (HR = 1.72, p < 0.001), liver (HR = 1.66, p < 0.001), and lung (HR = 1.51, p < 0.001) are all significantly associated with poorer survival outcomes. Among racial groups, Black patients (HR = 1.39, p < 0.001) had significantly worse survival compared to White patients, while Asian or Pacific Islander and American Indian/Alaska Native groups did not show a statistically significant difference.
+The multivariable Cox proportional hazards model results indicate that metastasis to the bone (HR = 1.30, p \< 0.001), brain (HR = 1.72, p \< 0.001), liver (HR = 1.66, p \< 0.001), and lung (HR = 1.51, p \< 0.001) are all significantly associated with poorer survival outcomes.
+Among racial groups, Black patients (HR = 1.39, p \< 0.001) had significantly worse survival compared to White patients, while Asian or Pacific Islander and American Indian/Alaska Native groups did not show a statistically significant difference.
 
 Regarding age, survival risk generally increased with older age, with statistically significant increases observed in the 70-74 years (HR = 7.26, p = 0.048), 75-79 years (HR = 7.91, p = 0.039), 80-84 years (HR = 9.53, p = 0.025), and 85+ years (HR = 12.75, p = 0.011) groups, indicating poorer survival outcomes in older patients.
 
-Year of diagnosis did not show a consistent or significant trend, suggesting no clear improvement or decline in survival based on the year of diagnosis. Household income was associated with survival, with patients in the $50,000 - $54,999 (HR = 1.16, p = 0.011) and $65,000 - $69,999 (HR = 1.12, p = 0.030) categories showing significantly higher risk compared to those earning $75,000+. However, other income groups did not show significant differences.
+Year of diagnosis did not show a consistent or significant trend, suggesting no clear improvement or decline in survival based on the year of diagnosis.
+Household income was associated with survival, with patients in the \$50,000 - \$54,999 (HR = 1.16, p = 0.011) and \$65,000 - \$69,999 (HR = 1.12, p = 0.030) categories showing significantly higher risk compared to those earning \$75,000+.
+However, other income groups did not show significant differences.
 
 Overall, metastasis, age, and race appear to be key determinants of survival, with Black race and older age groups associated with poorer outcomes.
 
-## Full analysis
+### Random Survival Forest
 
-*Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.*
+A Random Survival Forest (RSF) model was used to evaluate the contribution of clinical and demographic predictors to overall survival.
+The RSF model demonstrated strong performance in predicting survival at 12 months, achieving an AUC of 0.74 (@fig-rsf-auc).
+The confusion matrix revealed a sensitivity of 86.5% and a specificity of 47.9%, with an overall accuracy of 53.8% and balanced accuracy of 67.2%, indicating that the model was effective in identifying patients at high risk of death within the first year.
 
-Example @tbl-resulttable2 shows a summary of a linear model fit.
+Variable importance analysis revealed that age group, median household income, and year of diagnosis were the most influential predictors of survival (@fig-rsf-variable-importance).
+Other important variables included race and metastasis to the bone, lung, liver, and brain.
+The individualized survival prediction for a representative patient showed a steady decline in survival probability over time, reflecting the nature of long-term risk in this cohort (@fig-rsf-ind-sur-pre). @fig-rsf-con-matrix. Confusion matrix showing prediction results of the Random Survival Forest model at 12 months. The model correctly classified 709 survivors and 2,182 non-survivors, with moderate misclassification of 2,376 survivors and 111 non-survivors.
+
 
 ```{r}
-#| label: tbl-resulttable2
-#| tbl-cap: "Linear model fit table."
+#| label: fig-rsf-auc
+#| fig-cap: "Random Survival Forest AUC"
 #| echo: FALSE
-resulttable2 = readRDS(here("results","tables","resulttable2.rds"))
-knitr::kable(resulttable2)
+knitr::include_graphics(here("results", "figures", "rsf_auc_12mo.png"))
 ```
 
+
+```{r}
+#| label: fig-rsf-variable-importance
+#| fig-cap: "Random Survival Forest Variable Importance"
+#| echo: FALSE
+knitr::include_graphics(here("results", "figures", "rsf_variable_importance.png"))
+```
+```{r}
+#| label: fig-rsf-ind-sur-pre
+#| fig-cap: "Random Survival Forest Individualized Survival Prediction"
+#| echo: FALSE
+knitr::include_graphics(here("results", "figures", "rsf_survival_curve_patient1.png"))
+```
+```{r}
+#| label: fig-rsf-con-matrix
+#| fig-cap: "RSF Confusion Matrix (12 Months)"
+#| echo: FALSE
+knitr::include_graphics(here("results", "figures", "rsf_conf_matrix_12mo.png"))
+```
 {{< pagebreak >}}
 
 # Discussion
