@@ -54,18 +54,7 @@ ZUBER-MADA-project/
 └── README.md               # Project overview and general usage instructions
 ```
 
-
 {{< pagebreak >}}
-
-# Additional Method Details
-
-Often, the main manuscript only allows for an overview description of the methods. Use the supplement to describe all your methods, models and approaches in a lot of detail. Reference specific parts of your code as needed.
-
-{{< pagebreak >}}
-
-# Additional results
-
-Show additional results here. Those can be some useful exploratory/descriptive figures or tables, or results from additional analyses that didn't make it into the main text.
 
 # Additional result
 
