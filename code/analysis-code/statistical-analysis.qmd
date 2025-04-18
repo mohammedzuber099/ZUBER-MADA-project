@@ -109,6 +109,7 @@ saveRDS(cox_results, file = here::here("results", "tables", "mets_HR.rds"))
 
 
 ```
+
 ```{r}
 # Publication Quality table
 # Step 1: Create survival object (if not already created)
@@ -413,6 +414,7 @@ cox_race_results
 saveRDS(cox_race_results, file = here::here("results", "tables", "race_HR.rds"))
 
 ```
+
 ```{r}
 #Publication-ready Table 
 # Step 1: Recode the race variable (if not already done)
@@ -497,7 +499,6 @@ gtsave(race_cox_gt,
 race_cox_gt
 
 ```
-
 
 ## Kaplan-Meier Survival Curve: Race and Survival
 
@@ -587,6 +588,7 @@ cox_age_results
 saveRDS(cox_age_results, file = here::here("results", "tables", "age_HR.rds"))
 
 ```
+
 ```{r}
 #Publication-ready table 
 
@@ -673,7 +675,6 @@ gtsave(age_cox_gt,
 # Optional: display in output
 age_cox_gt
 ```
-
 
 ## Bivariate Analysis: Year of Diagnosis and Survival
 
@@ -1070,8 +1071,6 @@ dev.off()
 
 
 ```
-
-
 
 ## Lasso-Cox Model
 

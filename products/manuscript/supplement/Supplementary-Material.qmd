@@ -1,18 +1,18 @@
 ---
 title: "Supplement to Example Manuscript Template for a Data Analysis Project"
 format:
-  pdf:
+  docx:
     toc: false
     number-sections: true
     highlight-style: github
-bibliography: ../../assets/dataanalysis-references.bib
-csl: ../../assets/american-journal-of-epidemiology.csl
 ---
 
 ```{r, echo=FALSE, message=FALSE}
 # load a few R packages
 library(here)
 library(knitr)
+library(tidyverse)
+
 ```
 
 # Overview
@@ -23,14 +23,15 @@ This supplementary material provides additional details, analyses, and outputs s
 
 This project is organized in a modular and reproducible structure, separating raw data, processing scripts, analysis outputs, and final products. Below is a guide to the directory structure and instructions to reproduce all results.
 
-### Directory Structure Overview
+# Directory Structure Overview
 
+### 📁 Directory Structure Overview
 
+```
 ZUBER-MADA-project/
-│
 ├── data/
-│   ├── raw-data/           # Contains the original input datasets (raw files)
-│   └── processed-data/     # Contains the cleaned and transformed datasets
+│   ├── raw-data/           # Original input datasets (raw files)
+│   └── processed-data/     # Cleaned and transformed datasets
 │
 ├── code/
 │   ├── processing-code/    # Data cleaning scripts
@@ -51,6 +52,7 @@ ZUBER-MADA-project/
 │
 ├── assets/                 # Bibliography and citation style files
 └── README.md               # Project overview and general usage instructions
+```
 
 
 {{< pagebreak >}}
@@ -172,36 +174,4 @@ lasso_selected <- readRDS(here::here("results", "tables", "lasso_selected.rds"))
 lasso_selected %>% knitr::kable(digits = 4)
 ```
 
-## LASSO Cox Model Performance at 12 Months
-To assess the discriminatory ability of the LASSO Cox regression model, we evaluated model performance at 12 months post-diagnosis. The linear predictor (risk score) was used to generate a receiver operating characteristic (ROC) curve, and area under the curve (AUC) was calculated. Additionally, we computed a confusion matrix using a default threshold of 0 for classification.
 
-@tbl-lasso-auc. Model discrimination at 12 months, measured by area under the ROC curve (AUC). The LASSO Cox model achieved a moderate discriminative ability with an AUC of 0.664.
-```{r}
-#| label: tbl-lasso-auc
-#| tbl-cap: "AUC for the LASSO Cox model at 12-month survival prediction."
-#| echo: FALSE
-paste("AUC at 12 months:", round(auc_val, 3))
-
-```
-
-@tbl-lasso-cm. Confusion matrix at 12 months using a classification threshold of 0. The model achieved high sensitivity (87.8%) but low specificity (25.7%), indicating it was better at correctly identifying deaths than survivals at this time point.
-```{r}
-#| label: tbl-lasso-cm
-#| tbl-cap: "Confusion matrix for LASSO Cox model predicting 12-month mortality."
-#| echo: FALSE
-conf_matrix
-
-```
-
-
-{{< pagebreak >}}
-
-# Discussion
-
-Any additional discussion regarding the supplementary material/findings.
-
-These papers [@mckay2020; @mckay2020a] are good examples of papers published using a fully reproducible setup similar to the one shown in this template.
-
-{{< pagebreak >}}
-
-# References
