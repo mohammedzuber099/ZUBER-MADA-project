@@ -9,43 +9,51 @@ bibliography: ../../assets/dataanalysis-references.bib
 csl: ../../assets/american-journal-of-epidemiology.csl
 ---
 
-
 ```{r, echo=FALSE, message=FALSE}
 # load a few R packages
 library(here)
 library(knitr)
 ```
 
-
-
-
-This shows some materials that could go into a supplementary file. Often you want/need references here too. You can use the same reference bib file for this and the main text (as done here) or have separate bib files.
-
-For illustrative purposes, I'm doing the supplement as pdf. For this to work, you need a (La)TeX system installed. It's easy. Just follow [these steps](https://quarto.org/docs/output-formats/pdf-basics.html).
-
-Of course you would choose the format based on needs.
-
-I'm also using a different style for the references here. (vancouver vs apa in the main manuscript). Usually one would have the formatting of the references the same in those two documents, but I want to illustrate how easy it is to switch reference formatting styles, you just need to get the right CSL file and specify it in the YAML header. We could also have a seperate reference bibtext (`.bib`) file, but here we are using the same.
-
-
-{{< pagebreak >}}
-
-
-
-
 # Overview
 
-A quick overview of what readers can find in the supplement.
-
+This supplementary material provides additional details, analyses, and outputs supporting the findings presented in the main manuscript. It includes extended methodological explanations, reproducibility instructions, and results from exploratory data analysis. Key supplementary tables and figures include variable summaries, survival modeling outputs, and machine learning performance metrics. Detailed results from Cox regression, Random Forest, and LASSO Cox models are presented along with confusion matrices, AUC values, and variable importance rankings. The structure and content of the project directory are outlined to facilitate full reproducibility. Together, these materials offer a comprehensive view of the analytical workflow and support the robustness of the study’s conclusions.
 
 # Code and file information
 
-Explain here what each code/file is and does, and in which order (if any) users need to run thing to reproduce everything.
-Essentially, give a full set of instructions to re-generate everything.
+This project is organized in a modular and reproducible structure, separating raw data, processing scripts, analysis outputs, and final products. Below is a guide to the directory structure and instructions to reproduce all results.
+
+### Directory Structure Overview
+
+
+ZUBER-MADA-project/
+│
+├── data/
+│   ├── raw-data/           # Contains the original input datasets (raw files)
+│   └── processed-data/     # Contains the cleaned and transformed datasets
+│
+├── code/
+│   ├── processing-code/    # Data cleaning scripts
+│   ├── eda-code/           # Exploratory data analysis scripts
+│   └── analysis-code/      # Statistical modeling and prediction
+│
+├── results/
+│   ├── edatables/          # Exploratory summary tables
+│   ├── edafigures/         # Exploratory plots
+│   ├── tables/             # Model results tables
+│   ├── figures/            # Model-related figures
+│   └── output/             # Rendered final outputs (PDF/HTML)
+│
+├── products/
+│   ├── manuscript/         # Manuscript and supplementary files
+│   ├── poster/             # Poster material (if applicable)
+│   └── slides/             # Presentation slides (if applicable)
+│
+├── assets/                 # Bibliography and citation style files
+└── README.md               # Project overview and general usage instructions
 
 
 {{< pagebreak >}}
-
 
 # Additional Method Details
 
@@ -53,51 +61,147 @@ Often, the main manuscript only allows for an overview description of the method
 
 {{< pagebreak >}}
 
-
 # Additional results
 
 Show additional results here. Those can be some useful exploratory/descriptive figures or tables, or results from additional analyses that didn't make it into the main text.
 
+# Additional result
 
-## Example additional result
-
-
-@tbl-resulttable1 shows an additional table summarizing a model fit.
+## Exploratory Analysis:Race Distribution
+As part of the descriptive exploration of the dataset, we examined the distribution of patients by race. The majority of patients in the cohort identified as White, followed by Black, Asian or Pacific Islander, American Indian/Alaska Native, and a small proportion with unknown race information. @tbl-race-summary. Frequency distribution of patients across racial categories.
 
 ```{r}
-#| label: tbl-resulttable1
-#| tbl-cap: "Another fit table."
+#| label: tbl-race-summary
+#| tbl-cap: "Distribution of patients by race in the analytic cohort."
 #| echo: FALSE
-resulttable1 = readRDS(here("results","tables","resulttable1.rds"))
-knitr::kable(resulttable1)
+p3 <- readRDS(here::here("results", "edatables", "edaracesummary.rds"))
+knitr::kable(p3)
+
+```
+## Exploratory Summary: Year of Diagnosis
+
+We also summarized the distribution of patients by year of cancer diagnosis to understand the temporal spread of the study cohort. This information helps contextualize potential changes in treatment patterns, diagnostic advancements, or survival outcomes over time. @tbl-year-summary. Frequency distribution of patients by year of diagnosis.
+```{r}
+#| label: tbl-year-summary
+#| tbl-cap: "Distribution of patients by year of diagnosis."
+#| echo: FALSE
+p5 <- readRDS(here::here("results", "edatables", "edayearsummary.rds"))
+knitr::kable(p5)
+
+```
+@fig-year-diagnosis. Bar plot displaying the distribution of patients by year of diagnosis. The figure shows a relatively even spread across the years, with some fluctuations that may reflect data entry trends or cohort recruitment variability.
+```{r}
+#| label: fig-year-diagnosis
+#| fig-cap: "Bar plot showing the distribution of patients by year of diagnosis."
+#| echo: FALSE
+knitr::include_graphics(here::here("results", "edafigures", "edayear.png"))
+
+```
+
+## Exploratory Summary: Cause-Specific Death Classification
+We summarized the distribution of outcomes according to the SEER cause-specific death classification. The majority of patients in the dataset (77.5%) were classified as having died due to the primary cancer diagnosis, while 22.5% were either alive or had died from other causes. This outcome classification was used as the primary event definition in survival models throughout the analysis.
+
+@tbl-cause-death. Distribution of patients by cause-specific death classification.
+
+```{r}
+#| label: tbl-cause-death
+#| tbl-cap: "Cause-specific death classification among patients in the cohort."
+#| echo: FALSE
+p9 <- readRDS(here::here("results", "edatables", "edacausedeathsummary.rds"))
+knitr::kable(p9)
+
 ```
 
 
 
-@fig-result2 shows a scatterplot figure produced by one of the R scripts.
+## Univariate Analysis
 
+To evaluate whether survival outcomes varied over time, we conducted a bivariate Cox proportional hazards analysis using year of diagnosis as the predictor. The year 2010 was used as the reference category. Hazard ratios (HRs) for each subsequent year (2011 to 2015) were calculated to assess whether patients diagnosed in later years had different risks of death compared to those diagnosed in 2010. As shown in @tbl-year-diagnosis, all HRs were close to 1, and none of the comparisons reached statistical significance (all p \> 0.05), indicating that there was no significant year-to-year variation in survival over the study period. These findings suggest a relative consistency in survival outcomes for patients diagnosed between 2010 and 2015 within this dataset.
 
 ```{r}
-#| label: fig-result2
-#| fig-cap: "Height and weight."
+#| label: tbl-year-diagnosis
+#| tbl-cap: "Hazard ratios from Cox regression evaluating year of diagnosis and survival."
 #| echo: FALSE
-knitr::include_graphics(here("results","figures","height-weight.png"))
+cox_year_results <- readRDS(here::here("results", "tables", "year_HR.rds"))
+knitr::kable(cox_year_results, digits = 3)
+```
+
+## Random Forest Model: Predicting Cause-Specific Death
+
+We implemented a random forest classifier to predict whether a patient’s death was attributable to cancer using SEER registry variables. The dataset was preprocessed with downsampling to address class imbalance. We used 5-fold cross-validation to tune hyperparameters and selected the best model based on ROC AUC. The model was trained on 80% of the data and evaluated on a held-out 20% test set.
+
+The top predictors, based on variable importance, included lung and liver metastases, age group, and year of diagnosis.
+
+@fig-vip-rf .Variable importance plot from the final tuned random forest model. The top 10 predictors are displayed, with mets_lung and mets_liver being the most influential variables for predicting cause-specific death.
+
+```{r}
+#| label: fig-vip-rf
+#| fig-cap: "Top 10 most important variables from the random forest model predicting cause-specific death."
+#| echo: FALSE
+knitr::include_graphics(here::here("results", "figures", "vip_plot_rf_balanced.png"))
+```
+
+@tbl-rf-cm. Confusion matrix summarizing the random forest model’s classification performance on the test set. The model shows better performance in identifying cancer-attributable deaths than non-cancer deaths, although overall accuracy was limited.
+```{r}
+#| label: tbl-rf-cm
+#| tbl-cap: "Confusion matrix from the random forest model on the test set."
+#| echo: FALSE
+rf_cm <- readRDS(here::here("results", "tables", "random_forest_balanced_confusion_matrix.rds"))
+rf_cm
+```
+@tbl-rf-auc. Area under the receiver operating characteristic curve (ROC AUC) from the random forest model. The model achieved an AUC of approximately 0.39, indicating limited discriminative performance, possibly due to overlapping features and class imbalance.
+```{r}
+#| label: tbl-rf-auc
+#| tbl-cap: "ROC AUC score of the final random forest model."
+#| echo: FALSE
+rf_auc <- readRDS(here::here("results", "tables", "random_forest_balanced_auc.rds"))
+rf_auc
+```
+
+
+##  LASSO Cox Regression for Variable Selection.
+To identify the most influential predictors of cancer-specific survival, we applied LASSO (Least Absolute Shrinkage and Selection Operator) penalized Cox regression using the glmnet package. This approach helps in variable selection by shrinking less informative coefficients to zero while retaining strong predictors. We performed 10-fold cross-validation to select the optimal penalty parameter (λ), minimizing the partial likelihood deviance.
+
+@tbl-lasso-vars. Selected variables from the LASSO model using the optimal penalty parameter (λ.min). These are the predictors that remained in the final model with non-zero coefficients.
+
+```{r}
+#| label: tbl-lasso-vars
+#| tbl-cap: "Non-zero coefficients from the LASSO Cox regression model."
+#| echo: FALSE
+lasso_selected <- readRDS(here::here("results", "tables", "lasso_selected.rds"))
+lasso_selected %>% knitr::kable(digits = 4)
+```
+
+## LASSO Cox Model Performance at 12 Months
+To assess the discriminatory ability of the LASSO Cox regression model, we evaluated model performance at 12 months post-diagnosis. The linear predictor (risk score) was used to generate a receiver operating characteristic (ROC) curve, and area under the curve (AUC) was calculated. Additionally, we computed a confusion matrix using a default threshold of 0 for classification.
+
+@tbl-lasso-auc. Model discrimination at 12 months, measured by area under the ROC curve (AUC). The LASSO Cox model achieved a moderate discriminative ability with an AUC of 0.664.
+```{r}
+#| label: tbl-lasso-auc
+#| tbl-cap: "AUC for the LASSO Cox model at 12-month survival prediction."
+#| echo: FALSE
+paste("AUC at 12 months:", round(auc_val, 3))
+
+```
+
+@tbl-lasso-cm. Confusion matrix at 12 months using a classification threshold of 0. The model achieved high sensitivity (87.8%) but low specificity (25.7%), indicating it was better at correctly identifying deaths than survivals at this time point.
+```{r}
+#| label: tbl-lasso-cm
+#| tbl-cap: "Confusion matrix for LASSO Cox model predicting 12-month mortality."
+#| echo: FALSE
+conf_matrix
+
 ```
 
 
 {{< pagebreak >}}
-
 
 # Discussion
 
 Any additional discussion regarding the supplementary material/findings.
 
-These papers [@mckay2020; @mckay2020a] are good examples of papers published using a fully reproducible setup similar to the one shown in this template. 
+These papers [@mckay2020; @mckay2020a] are good examples of papers published using a fully reproducible setup similar to the one shown in this template.
 
 {{< pagebreak >}}
 
-
 # References
-
-
-

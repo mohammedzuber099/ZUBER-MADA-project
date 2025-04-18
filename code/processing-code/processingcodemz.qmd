@@ -155,7 +155,8 @@ skimr::skim(d7)
 
 ```
 
-## Renaming all the variables for the ease of analysis 
+## Renaming all the variables for the ease of analysis
+
 ```{r}
 d8 <- d7 %>% dplyr::rename(
     # Demographic Information
@@ -197,7 +198,6 @@ colnames(d8)
 
 ```
 
-
 ## All done, data is clean now.
 
 Let's assign the final cleaned dataset to a variable. This makes it easier to add further cleaning steps above if needed.
@@ -205,8 +205,6 @@ Let's assign the final cleaned dataset to a variable. This makes it easier to ad
 ```{r}
 processeddata <- d8  # Assign cleaned dataset
 ```
-
-
 
 # Save Data
 

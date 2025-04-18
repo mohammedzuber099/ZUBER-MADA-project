@@ -12,6 +12,10 @@ library(here) #for data loading/saving
 library(dplyr)
 library(skimr)
 library(ggplot2)
+library(gt)
+library(webshot2)
+library(fs)
+library(dplyr)
 ```
 
 
@@ -34,6 +38,67 @@ summarytable_file = here("results", "edatables", "edasummarytable.rds")
 saveRDS(summary_df, file = summarytable_file)
 ```
 ```{r}
+# Publication ready-table
+# Get skim summary
+summary_df <- skim(mydata)
+
+# Filter only for survival_months (numeric type)
+surv_summary <- summary_df %>%
+  filter(skim_variable == "survival_months") %>%
+  select(
+    Variable = skim_variable,
+    Completeness = complete_rate,
+    Mean = numeric.mean,
+    SD = numeric.sd,
+    Min = numeric.p0,
+    Q1 = numeric.p25,
+    Median = numeric.p50,
+    Q3 = numeric.p75,
+    Max = numeric.p100
+  )
+
+
+# Format using GT
+surv_summary_gt <- surv_summary %>%
+  gt() %>%
+  tab_header(title = md("**Table 2: Summary of Survival Months**")) %>%
+  fmt_number(columns = where(is.numeric), decimals = 2) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  opt_table_font(font = list(google_font("Roboto"), default_fonts())) %>%
+  tab_options(
+    table.font.size = 11,
+    heading.title.font.size = 13,
+    table_body.hlines.color = "gray90",
+    table.border.top.color = "gray80",
+    table.border.bottom.color = "gray80",
+    row.striping.include_table_body = TRUE,
+    data_row.padding = px(4),
+    table.align = "center"
+  ) %>%
+  opt_row_striping() %>%
+  tab_source_note(md("*Note:* Summary based on numeric variable `survival_months`."))
+
+# Display the table 
+surv_summary_gt
+
+# Save GT object and PNG
+saveRDS(surv_summary_gt, here("results", "edatables", "edasurvivalmonths_table_gt.rds"))
+
+# Ensure image folder exists
+dir_create(here("results", "edafigures"))
+
+# Save as PNG
+gtsave(surv_summary_gt,
+       filename = here("results", "edafigures", "edasurvivalmonths_table.png"),
+       vwidth = 1000, vheight = 600, zoom = 2)
+```
+
+
+
+```{r}
 # Create a structured summary table
 var_summary <- mydata %>%
   summarise_all(class) %>%
@@ -48,7 +113,44 @@ print(var_summary)
 summarytable_file = here("results", "edatables", "edasummarytable2.rds")
 saveRDS(var_summary, file = summarytable_file)
 ```
+```{r}
+# Create publication-ready table
+var_summary_gt <- var_summary %>%
+  gt() %>%
+  tab_header(
+    title = md("**Table 1: Variable Summary**")
+  ) %>%
+  cols_label(
+    Variable = "Variable Name",
+    Type = "Data Type",
+    Unique_Values = "Unique Values",
+    Missing_Values = "Missing Values"
+  ) %>%
+  fmt_number(
+    columns = vars(Unique_Values, Missing_Values),
+    decimals = 0
+  ) %>%
+  tab_options(
+    table.font.size = "small",
+    heading.title.font.size = 12,
+    data_row.padding = px(4),
+    table.align = "center"
+  )
 
+# Display the table
+var_summary_gt
+
+# Save the GT table object to RDS
+summarytable_file_gt <- here("results", "edatables", "edasummarytable2_gt.rds")
+# Save table as GT object (already done)
+saveRDS(var_summary_gt, file = here("results", "edatables", "edasummarytable2_gt.rds"))
+
+# ALSO save as high-resolution PNG
+gtsave(var_summary_gt,
+       filename = here("results", "edafigures", "summarytable.png"),
+       vwidth = 1200, vheight = 800, zoom = 2)
+
+```
 
 I am exploring the variable age first with the table
 
@@ -66,6 +168,57 @@ summarytable_file = here("results", "edatables", "edaagesummary.rds")
 saveRDS(p1, file = summarytable_file)
 
 ```
+```{r}
+# Generate summary Publication ready table for age_group
+p1 <- mydata %>%
+  group_by(age_group) %>%
+  summarise(Count = n(), .groups = "drop")
+
+# Style it using gt
+age_summary_gt <- p1 %>%
+  gt() %>%
+  tab_header(
+    title = md("**Table 3: Distribution of Age Groups**")
+  ) %>%
+  cols_label(
+    age_group = "Age Group",
+    Count = "Number of Patients"
+  ) %>%
+  fmt_number(columns = Count, decimals = 0) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  opt_row_striping() %>%
+  opt_table_font(font = list(google_font("Roboto"), default_fonts())) %>%
+  tab_options(
+    table.font.size = 11,
+    heading.title.font.size = 13,
+    data_row.padding = px(4),
+    table.align = "center",
+    table_body.hlines.color = "gray90",
+    table.border.top.color = "gray80",
+    table.border.bottom.color = "gray80"
+  ) %>%
+  tab_source_note(md("*Note:* This table summarizes the distribution of patients by age group."))
+
+# Show in EDA HTML output
+age_summary_gt
+
+# Save raw table
+saveRDS(p1, here("results", "edatables", "edaagesummary.rds"))
+
+# Save styled table
+saveRDS(age_summary_gt, here("results", "edatables", "edaagesummary_gt.rds"))
+
+# Ensure folder exists and save PNG
+dir_create(here("results", "edafigures"))
+
+gtsave(age_summary_gt,
+       filename = here("results", "edafigures", "edaagesummary.png"),
+       vwidth = 800, vheight = 500, zoom = 2)
+```
+
 Now lets look at the bar plot for age distribution 
 
 ```{r}
@@ -184,6 +337,66 @@ saveRDS(p7, file = summarytable_file)
 
 
 ```
+```{r}
+#Publication ready table 
+# Generate clean summary of SEER Combined Mets at Diagnosis
+# Clean and relabel the metastasis site names
+p7 <- mydata %>%
+  summarise(
+    Bone_Mets  = sum(mets_bone == "Yes", na.rm = TRUE),
+    Brain_Mets = sum(mets_brain == "Yes", na.rm = TRUE),
+    Liver_Mets = sum(mets_liver == "Yes", na.rm = TRUE),
+    Lung_Mets  = sum(mets_lung == "Yes", na.rm = TRUE)
+  ) %>%
+  pivot_longer(cols = everything(), names_to = "Metastasis_Site", values_to = "Count") %>%
+  mutate(Metastasis_Site = case_when(
+    Metastasis_Site == "Bone_Mets"  ~ "Bone Metastasis",
+    Metastasis_Site == "Brain_Mets" ~ "Brain Metastasis",
+    Metastasis_Site == "Liver_Mets" ~ "Liver Metastasis",
+    Metastasis_Site == "Lung_Mets"  ~ "Lung Metastasis"
+  ))
+
+# Format the GT table
+mets_summary_gt <- p7 %>%
+  gt() %>%
+  tab_header(title = md("**Table 4: Metastasis at Diagnosis by Site**")) %>%
+  cols_label(
+    Metastasis_Site = "Site",
+    Count = "Number of Patients"
+  ) %>%
+  fmt_number(columns = Count, decimals = 0) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  opt_table_font(font = list(google_font("Roboto"), default_fonts())) %>%
+  opt_row_striping() %>%
+  tab_options(
+    table.font.size = 11,
+    heading.title.font.size = 13,
+    data_row.padding = px(4),
+    table.align = "center",
+    table_body.hlines.color = "gray90",
+    table.border.top.color = "gray80",
+    table.border.bottom.color = "gray80"
+  ) %>%
+  tab_source_note(md("*Note:* This table summarizes the number of patients with bone, brain, liver, or lung metastases at diagnosis."))
+
+# Show in EDA output
+mets_summary_gt
+
+# Save RDS versions
+saveRDS(p7, here("results", "edatables", "edametsatsummary.rds"))
+saveRDS(mets_summary_gt, here("results", "edatables", "edametsatsummary_gt.rds"))
+
+# Save PNG version for manuscript
+dir_create(here("results", "edafigures"))
+
+gtsave(mets_summary_gt,
+       filename = here("results", "edafigures", "edametsatsummary.png"),
+       vwidth = 900, vheight = 600, zoom = 2)
+```
+
 
 ```{r}
 # Bar plot for SEER Combined Mets at DX distribution

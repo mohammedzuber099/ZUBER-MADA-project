@@ -25,6 +25,11 @@ library(survival)
 library(pROC)
 library(caret)
 library(glmnet)
+library(gt)
+library(dplyr)
+library(here)
+library(webshot2)
+library(fs)
 ```
 
 # Loading data
@@ -102,6 +107,99 @@ cox_results
 # Save Cox results for reproducibility
 saveRDS(cox_results, file = here::here("results", "tables", "mets_HR.rds"))
 
+
+```
+```{r}
+# Publication Quality table
+# Step 1: Create survival object (if not already created)
+# Replace with your actual survival time and event columns
+# surv_obj <- Surv(time = mydata_filtered$survival_months, event = mydata_filtered$death_flag)
+
+# Step 2: Run Cox regression function with conf.int = TRUE
+run_cox <- function(var) {
+  formula <- as.formula(paste("surv_obj ~", paste0("`", var, "`")))
+  cox_model <- coxph(formula, data = mydata_filtered)
+  result <- broom::tidy(cox_model, exponentiate = TRUE, conf.int = TRUE)
+  return(result)
+}
+
+# Step 3: Run the function for each metastasis site
+cox_bone  <- run_cox("mets_bone")
+cox_brain <- run_cox("mets_brain")
+cox_liver <- run_cox("mets_liver")
+cox_lung  <- run_cox("mets_lung")
+
+# Step 4: Combine and relabel terms
+cox_results <- bind_rows(cox_bone, cox_brain, cox_liver, cox_lung) %>%
+  mutate(term = case_when(
+    term == "mets_boneYes"  ~ "Bone Metastasis",
+    term == "mets_brainYes" ~ "Brain Metastasis",
+    term == "mets_liverYes" ~ "Liver Metastasis",
+    term == "mets_lungYes"  ~ "Lung Metastasis",
+    TRUE ~ term
+  ))
+
+# Step 5: Format for presentation
+cox_formatted <- cox_results %>%
+  mutate(
+    HR_CI = paste0(round(estimate, 2), " (", round(conf.low, 2), "–", round(conf.high, 2), ")"),
+    p_value = ifelse(p.value < 0.001, "<0.001", round(p.value, 3)),
+    significant = ifelse(p.value < 0.05, TRUE, FALSE)
+  ) %>%
+  select(Metastasis = term, `Hazard Ratio (95% CI)` = HR_CI, `p-value` = p_value, significant)
+
+# Step 6: Create GT table with red highlight for significant rows
+# Format for presentation but do not include `significant` column in final output
+cox_formatted <- cox_results %>%
+  mutate(
+    HR_CI = paste0(round(estimate, 2), " (", round(conf.low, 2), "–", round(conf.high, 2), ")"),
+    p_value = ifelse(p.value < 0.001, "<0.001", round(p.value, 3)),
+    highlight = ifelse(p.value < 0.05, TRUE, FALSE)  # internal use only
+  )
+
+# GT table without the highlight column visible
+mets_cox_gt <- cox_formatted %>%
+  select(Metastasis = term, `Hazard Ratio (95% CI)` = HR_CI, `p-value` = p_value, highlight) %>%
+  gt() %>%
+  tab_header(
+    title = md("**Table 5: Association Between Metastasis and Overall Survival**")
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  tab_style(
+    style = cell_text(color = "red"),
+    locations = cells_body(
+      columns = c(`Hazard Ratio (95% CI)`),
+      rows = highlight == TRUE
+    )
+  ) %>%
+  opt_row_striping() %>%
+  opt_table_font(font = list(google_font("Roboto"), default_fonts())) %>%
+  tab_options(
+    table.font.size = 11,
+    heading.title.font.size = 13,
+    data_row.padding = px(4),
+    table.align = "center",
+    table_body.hlines.color = "gray90",
+    table.border.top.color = "gray80",
+    table.border.bottom.color = "gray80"
+  ) %>%
+  tab_source_note(md("*Note:* Statistically significant hazard ratios (p < 0.05) are shown in red.")) %>%
+  cols_hide(columns = c(highlight))  # 👈 Hides the internal logic column
+
+# Step 7: Save outputs
+saveRDS(cox_results, here("results", "tables", "mets_HR.rds"))
+saveRDS(mets_cox_gt, here("results", "tables", "mets_HR_gt.rds"))
+
+dir_create(here("results", "figures"))
+
+gtsave(mets_cox_gt,
+       filename = here("results", "figures", "mets_HR_table.png"),
+       vwidth = 1000, vheight = 600, zoom = 2)
+#View table here
+mets_cox_gt
 
 ```
 
@@ -315,6 +413,91 @@ cox_race_results
 saveRDS(cox_race_results, file = here::here("results", "tables", "race_HR.rds"))
 
 ```
+```{r}
+#Publication-ready Table 
+# Step 1: Recode the race variable (if not already done)
+mydata_filtered <- mydata_filtered %>%
+  mutate(race = factor(race, levels = c(
+    "White", "Black", "Asian or Pacific Islander", "American Indian/Alaska Native"
+  )))
+
+# Step 2: Define the Cox model function (includes CI)
+run_cox_race <- function() {
+  formula <- as.formula("surv_obj ~ race")
+  cox_model <- coxph(formula, data = mydata_filtered)
+  result <- broom::tidy(cox_model, exponentiate = TRUE, conf.int = TRUE)  # ✅ Includes CI
+  return(result)
+}
+
+# Step 3: Run the model
+cox_race_results <- run_cox_race()
+
+# Step 4: Rename comparisons
+cox_race_results <- cox_race_results %>%
+  mutate(term = case_when(
+    term == "raceBlack" ~ "Black vs. White",
+    term == "raceAsian or Pacific Islander" ~ "Asian vs. White",
+    term == "raceAmerican Indian/Alaska Native" ~ "American Indian vs. White",
+    TRUE ~ term
+  ))
+
+# Step 5: Format HR (95% CI) and significance
+cox_race_formatted <- cox_race_results %>%
+  mutate(
+    HR_CI = paste0(round(estimate, 2), " (", round(conf.low, 2), "–", round(conf.high, 2), ")"),
+    p_value = ifelse(p.value < 0.001, "<0.001", round(p.value, 3)),
+    highlight = ifelse(p.value < 0.05, TRUE, FALSE)
+  )
+
+# Step 6: Create GT table with red highlights
+race_cox_gt <- cox_race_formatted %>%
+  select(Comparison = term, `Hazard Ratio (95% CI)` = HR_CI, `p-value` = p_value, highlight) %>%
+  gt() %>%
+  tab_header(
+    title = md("**Table 6: Association Between Race and Overall Survival**")
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  tab_style(
+    style = cell_text(color = "red"),
+    locations = cells_body(
+      columns = c(`Hazard Ratio (95% CI)`),
+      rows = highlight == TRUE
+    )
+  ) %>%
+  opt_row_striping() %>%
+  opt_table_font(font = list(google_font("Roboto"), default_fonts())) %>%
+  tab_options(
+    table.font.size = 11,
+    heading.title.font.size = 13,
+    data_row.padding = px(4),
+    table.align = "center",
+    table_body.hlines.color = "gray90",
+    table.border.top.color = "gray80",
+    table.border.bottom.color = "gray80"
+  ) %>%
+  tab_source_note(md("*Note:* Statistically significant hazard ratios (p < 0.05) are shown in red.")) %>%
+  cols_hide(columns = c(highlight))
+
+# Step 7: Show the table in QMD output
+race_cox_gt
+
+# Step 8: Save outputs
+saveRDS(cox_race_formatted, here("results", "tables", "race_HR.rds"))
+saveRDS(race_cox_gt, here("results", "tables", "race_HR_gt.rds"))
+
+dir_create(here("results", "figures"))
+gtsave(race_cox_gt,
+       filename = here("results", "figures", "race_HR_table.png"),
+       vwidth = 1000, vheight = 600, zoom = 2)
+
+# Show table in HTML/preview
+race_cox_gt
+
+```
+
 
 ## Kaplan-Meier Survival Curve: Race and Survival
 
@@ -393,7 +576,7 @@ cox_age_results <- cox_age_results %>%
     str_detect(term, "age_group70-74 years") ~ "70-74",
     str_detect(term, "age_group75-79 years") ~ "75-79",
     str_detect(term, "age_group80-84 years") ~ "80-84",
-    str_detect(term, "age_group85+ years") ~ "85+",
+    str_detect(term, "age_group85\\+ years") ~ "85+",
     TRUE ~ term  # Keep other terms unchanged
   ))
 
@@ -404,6 +587,93 @@ cox_age_results
 saveRDS(cox_age_results, file = here::here("results", "tables", "age_HR.rds"))
 
 ```
+```{r}
+#Publication-ready table 
+
+
+# Step 1: Re-run the Cox model with confidence intervals
+run_cox_age <- function() {
+  formula <- as.formula("surv_obj ~ age_group")
+  cox_model <- coxph(formula, data = mydata_filtered)
+  result <- broom::tidy(cox_model, exponentiate = TRUE, conf.int = TRUE)  # <-- CI INCLUDED
+  return(result)
+}
+
+cox_age_results <- run_cox_age()
+
+# Step 2: Relabel age group comparisons (optional cleaning)
+cox_age_results <- cox_age_results %>%
+  mutate(term = str_replace_all(term, "`", "")) %>%
+  mutate(term = case_when(
+    str_detect(term, "age_group25-29 years") ~ "25–29",
+    str_detect(term, "age_group30-34 years") ~ "30–34",
+    str_detect(term, "age_group35-39 years") ~ "35–39",
+    str_detect(term, "age_group40-44 years") ~ "40–44",
+    str_detect(term, "age_group45-49 years") ~ "45–49",
+    str_detect(term, "age_group50-54 years") ~ "50–54",
+    str_detect(term, "age_group55-59 years") ~ "55–59",
+    str_detect(term, "age_group60-64 years") ~ "60–64",
+    str_detect(term, "age_group65-69 years") ~ "65–69",
+    str_detect(term, "age_group70-74 years") ~ "70–74",
+    str_detect(term, "age_group75-79 years") ~ "75–79",
+    str_detect(term, "age_group80-84 years") ~ "80–84",
+    str_detect(term, "age_group85\\+ years") ~ "85+",
+    TRUE ~ term
+  ))
+
+# Step 3: Format table with HR, CI, p-value, significance flag
+cox_age_formatted <- cox_age_results %>%
+  mutate(
+    HR_CI = paste0(round(estimate, 2), " (", round(conf.low, 2), "–", round(conf.high, 2), ")"),
+    p_value = ifelse(p.value < 0.001, "<0.001", round(p.value, 3)),
+    highlight = ifelse(p.value < 0.05, TRUE, FALSE)
+  )
+
+# Step 4: Create GT table
+age_cox_gt <- cox_age_formatted %>%
+  select(`Age Group (vs. 20–24)` = term, `Hazard Ratio (95% CI)` = HR_CI, `p-value` = p_value, highlight) %>%
+  gt() %>%
+  tab_header(
+    title = md("**Table 6: Association Between Age Group and Overall Survival**")
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  tab_style(
+    style = cell_text(color = "red"),
+    locations = cells_body(
+      columns = c(`Hazard Ratio (95% CI)`),
+      rows = highlight == TRUE
+    )
+  ) %>%
+  opt_row_striping() %>%
+  opt_table_font(font = list(google_font("Roboto"), default_fonts())) %>%
+  tab_options(
+    table.font.size = 11,
+    heading.title.font.size = 13,
+    data_row.padding = px(4),
+    table.align = "center",
+    table_body.hlines.color = "gray90",
+    table.border.top.color = "gray80",
+    table.border.bottom.color = "gray80"
+  ) %>%
+  tab_source_note(md("*Note:* Statistically significant hazard ratios (p < 0.05) are shown in red.")) %>%
+  cols_hide(columns = c(highlight))
+
+# Step 5: Save GT object and PNG figure
+saveRDS(age_cox_gt, here("results", "tables", "age_HR_gt.rds"))
+
+dir_create(here("results", "figures"))
+
+gtsave(age_cox_gt,
+       filename = here("results", "figures", "age_HR_table.png"),
+       vwidth = 1000, vheight = 600, zoom = 2)
+
+# Optional: display in output
+age_cox_gt
+```
+
 
 ## Bivariate Analysis: Year of Diagnosis and Survival
 
@@ -801,6 +1071,8 @@ dev.off()
 
 ```
 
+
+
 ## Lasso-Cox Model
 
 A LASSO-penalized Cox proportional hazards model was applied to the survival dataset to perform variable selection and reduce model complexity. Cross-validation identified the optimal penalty parameter (λ) that minimized the partial likelihood deviance. The model selected 10 predictors with non-zero coefficients, including all four metastasis variables (mets_lung, mets_liver, mets_bone, mets_brain) and several younger age groups (with negative coefficients, indicating lower risk). The results support the prognostic value of metastasis presence and younger age in overall survival prediction.
@@ -848,9 +1120,8 @@ lasso_selected <- lasso_selected %>%
 # Step 4: View selected variables
 print(lasso_selected)
 
-# Optional: Save selected variables
-write.csv(lasso_selected, "results/tables/lasso_selected_variables.csv", row.names = FALSE)
-
+saveRDS(lasso_selected, file = here::here("results", "tables", "lasso_selected.rds"))
+saveRDS(cvfit, file = here::here("results", "tables", "cvfit_lasso.rds"))
 ```
 
 ```{r}
