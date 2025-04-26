@@ -1,0 +1,214 @@
+---
+title: The Clinicopathological Features and Survival Outcomes of Patients with Different Metastatic Sites in Stage IV Endometrial Cancer: A SEER-Based Cohort  
+author: Asmith Joseph
+date: 4/25/2025
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Overview
+
+Title of project:The Clinicopathological Features and Survival Outcomes of Patients with Different Metastatic Sites in Stage IV Endometrial Cancer: A SEER-Based Cohort 
+
+Name of project author(s): Mohammed Zuber
+
+Name of project reviewer: Asmith Joseph
+
+
+# Instructions
+
+Write your comments and feedback below for each section/component of the project. The goal should be to help the author improve their project. Make comments as constructive and actionable as possible. You can provide both criticism and praise.
+
+For each component, pick one summary statement by deleting the ones that do not apply and keeping only the one that you think most closely summarizes a given component. 
+
+Make sure your final document compiles/renders into a readable, well-formatted html document.
+
+Delete any sections/text of this template that are not part of your final review document. (Including these instructions.)
+
+
+# Specific project content evaluation
+Evaluate the different parts of the project by filling in the sections below.
+
+
+## Background, Context and Motivation
+How well is the context of the project described? Is a comprehensive background, including summary of previous/related work given? Is the project well placed into the context of existing work (including proper referencing of existing work). Is it clear why the project was undertaken and what new information it hopes to provide?
+
+### Feedback and Comments
+
+The background section provides a clear foundation: incidence, stages, and survival. 
+Some suggestions to make it more concise: add one line on why site-specific metastasis data are still lacking, use a single citation style, combine duplicate stats, trim the symptom list, and cite a few prior SEER studies to show how you advance the field.
+
+### Summary assessment (PICK ONE, DELETE THE OTHERS)
+* strong contextualization and motivation
+
+
+## Question description
+How well and clear are the question(s)/hypotheses the project aims to address described? Is it clear how the questions relate to the data?
+
+
+### Feedback and Comments
+Your core question and its connection to SEER data are straightforward and well-defined. 
+2 suggestions: 
+* Split the aim into two succinct questions, one on clinicopathologic features and one on survival.
+* Spell out the exact survival metrics you’ll analyze (e.g., overall vs. cancer-specific survival, median vs. five-year rates).
+
+### Summary assessment
+* question/hypotheses unclear
+* question/hypotheses somewhat explained
+* question/hypotheses fully clear
+
+
+## Data description
+How well is the data overall described? Is the source provided? Is a codebook or other meta-information available that makes it clear what the data is? 
+
+### Feedback and Comments
+The data description is comprehensive: you clearly outline where records were extracted and specify precise inclusion criteria.
+Both demographic and clinical variables are defined and categorized in detail.
+While the SEER source is cited correctly, no standalone codebook or tailored data dictionary is provided. 
+To ensure complete transparency and reproducibility, include or reference the SEER data dictionary or supply a project-specific codebook that maps every variable and category.
+
+### Summary assessment
+* source and overall structure of data well explained
+
+
+## Data wrangling and exploratory analysis
+How well is the data cleaned/processed and explored? Are all steps reasonable and well explained? Are alternatives discussed and considered? Are meaningful exploratory results shown (e.g. in the supplementary materials)?
+
+### Feedback and Comments
+
+The data-cleaning workflow is rigorous and fully reproducible. You define inclusion and exclusion criteria precisely, standardize variable types consistently, and share code and raw data in organized folders. Concise summary tables and informative visualizations support your exploratory analysis well.
+
+
+### Summary assessment
+* essentially no weaknesses in wrangling and exploratory component
+
+
+
+## Appropriateness of Analysis
+Were the analysis methods appropriate for the data? Was the analysis done properly? Were different components of the analysis (e.g. performance measure, variable selection, data pre-processing, model evaluation) done in the best way possible and explained well?
+
+### Feedback and Comments
+Applying Kaplan–Meier curves, Cox proportional-hazards models, and a Random Survival Forest (RSF) with 500 trees, proper factor conversion, and impurity-based variable importance is well suited to right-censored survival data: the two-stage Cox approach cleanly separates unadjusted from adjusted effects, and the RSF captures nonlinearities and interactions. 
+
+Some suggestions: 
+* report checks of the Cox models’ proportional-hazards assumption and explain how missing covariate data were handled
+* justify your predictor selection criteria and provide internal validation for the RSF (e.g., cross-validation or out-of-bag error estimates)
+* given the censoring structure, either justify using a confusion matrix or adopt a more appropriate performance metric.
+
+### Summary assessment
+* strong and reasonable analysis
+
+## Presentation
+How well are results presented? Are tables and figures easy to read and understand? Are the main figures/tables publication level quality? 
+
+### Feedback and Comments
+All presentation criteria are satisfied:
+* Abbreviations and symbols are defined in legends or footnotes
+* Font styles, sizes, and line weights are consistent, legible at journal-print Scale, and distinguishable in greyscale for color-blind readers
+* Captions succinctly convey key findings
+* Table columns are aligned with appropriate numerical precision and footnoted for significance
+* Every figure and table is cited in a logical order with matching numbering
+ 
+### Summary assessment
+* results are very well presented
+
+
+## Discussion/Conclusions
+Are the study findings properly discussed? Are strengths and limitations acknowledged? Are findings interpreted properly?
+
+### Feedback and Comments
+* The discussion clearly interprets your key findings, showing how lung, brain, and liver metastases uniquely affect survival and situating these results within the broader literature on aggressive visceral spread. 
+* You appropriately highlight the study’s strengths and openly address its limitations. 
+*Your conclusions follow logically from the data and propose valuable next steps, such as integrating molecular and longitudinal treatment information. 
+
+Some Suggestions:
+*Briefly discuss how unmeasured clinical factors might bias your hazard estimates and outline specific ways these insights could inform clinical decision-making.
+
+### Summary assessment
+* strong, complete and clear discussion
+
+
+## Further comments
+
+_Add any other comments regarding the different aspects of the project here. Write anything you think can help your classmate improve their project._
+
+Some Final Suggestions: 
+* Consider adding a brief sensitivity analysis, such as comparing complete-case versus imputed datasets, to confirm the robustness of your findings. 
+* Also, include a statement in the Discussion on how metastatic-site risk stratification could inform treatment guidelines or multidisciplinary care pathways.
+
+
+
+# Overall project content evaluation
+Evaluate overall features of the project  by filling in the sections below.
+
+
+## Structure
+Is the project well structured? Are files in well labeled folders? Do files have reasonable names? Are all "junk" files not needed for analysis/reproduction removed? By just looking at files and folders, can you get an idea of how things fit together?
+
+### Feedback and Comments
+
+Upon reviewing the project files, I noticed that some folders in the main "Asset" directory do not seem relevant to the project. Remove these to avoid confusion and improve organization. 
+On the positive side, the other folders, such as code, products, results, and data, are well-organized and structured. 
+This setup allows for easy navigation and makes it straightforward to reproduce the analysis. 
+Overall, the project is structured to support efficient workflow and ensure that all necessary files are accessible.
+
+
+### Summary assessment
+* well structured
+
+
+## Documentation 
+How well is the project documented? Are you able to understand each step of the whole analysis, each decision that was made, and each line of code? Is enough information provided as comments in code or as part of Rmd files? 
+
+### Feedback and Comments
+
+The project is very well documented. I can clearly understand each step of the analysis, the reasoning behind each decision, and the logic behind each line of code.
+The code is appropriately commented on, and the Rmd files provide enough detail to follow the workflow without confusion.
+The thorough documentation ensures that anyone reviewing the project can easily comprehend the process and replicate the analysis.
+
+
+### Summary assessment
+* fully and well documented
+
+
+
+## Reproducibility
+Are all results fully reproducible? Is documentation provided which clearly explains how to reproduce things, and does it work without the need for any manual intervention? Are you able to re-run the whole analysis without having to do manual interventions/edits?
+
+### Feedback and Comments
+
+Yes, all results are fully reproducible. The documentation clearly explains how to reproduce the analysis, and everything works seamlessly without the need for manual intervention. 
+I was able to re-run the entire analysis without making any edits or adjustments. 
+The workflow is well-organized, making it easy to replicate the results and follow the steps as outlined.
+
+
+### Summary assessment
+* fully reproducible without issues
+
+
+## Thoroughness
+How thorough was the overall study? Were alternatives (e.g. different ways of processing the data or different models) considered? Were alternatives discussed? Were the questions/hypotheses fully and thoroughly addressed?
+
+### Feedback and Comments
+* The study thoroughly explores clinicopathological features and survival outcomes in stage IV endometrial cancer, focusing on metastatic sites (lung, liver, bone, and brain).
+* It combines Kaplan-Meier and Cox models with a Random Survival Forest (RSF) model, offering robust survival estimates and insights into predictor importance.
+* The research questions are clearly defined and fully addressed. 
+* The hypothesis linking metastasis to worse survival is explored in depth. Factors like age, race, and income are considered, and survival disparities across these groups are also examined.
+
+* Overall, the study is well-structured and comprehensive and effectively uses both statistical and machine-learning methods to answer the research questions.
+
+### Summary assessment
+* strong level of thorougness
+
+
+## Further comments
+
+_Add any other comments regarding the overall project here. Write anything you think can help your classmate improve their project._
+
+
+The project is well-executed and thoroughly addresses the key aspects of survival analysis in stage IV endometrial cancer. 
+* Excellent work. It's clear that you put a lot of effort into this research. Thank you for sharing it with us.
+
