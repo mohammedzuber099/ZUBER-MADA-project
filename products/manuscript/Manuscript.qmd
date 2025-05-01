@@ -71,7 +71,12 @@ Compared to other gynecological cancers such as cervical and ovarian cancer, end
 According to Mao et al., 2020, the five-year cancer-specific survival (CSS) rate for liver and brain metastases was 21%, while bone metastases had a survival rate of 20%.
 In patients with lung metastases, the median overall survival was 11 months, with a five-year CSS rate of 19%.
 However, this data specifically pertains to stage IV lung cancer patients.[@Mao2020] Patients with advanced endometrial cancer face poor survival outcomes, with metastatic disease being the leading cause of mortality.
-[@Mao2020] Therefore, this study aimed to utilize data from the Surveillance, Epidemiology, and End Results (SEER) database to analyze survival outcomes in patients diagnosed with stage IV endometrial cancer.
+[@Mao2020].
+
+While prior studies have reported outcomes by site-specific metastases, few have systematically compared survival outcomes across brain, liver, bone, and lung metastases in a large population-based cohort of stage IV endometrial cancer patients.
+This gap limits a comprehensive understanding of prognosis across different metastatic patterns.
+
+Therefore, this study aimed to utilize data from the Surveillance, Epidemiology, and End Results (SEER) database to analyze survival outcomes in patients diagnosed with stage IV endometrial cancer.
 The primary objective was to determine whether the presence of lung/brain/bone/liver metastases in adults with stage IV endometrial cancer is associated with worse survival outcomes compared to patients without any metastasis.
 
 ## Description of data and data source
@@ -171,15 +176,12 @@ The standard deviation (SD) is 27.67 months, reflecting high variability in pati
 A total of 5,839 patients were included in the analysis.
 This distribution suggests that while some patients survive long-term, the majority have relatively short survival durations.
 
-
-
 ```{r}
 #| label: tbl-summarytablesurvival
 #| tbl-cap: "Summary of survival months in the study population."
 #| echo: false
 knitr::include_graphics(here::here("results", "edafigures", "edasurvivalmonths_table.png"))
 ```
-
 
 @fig-survival shows the distribution of survival months.
 This histogram illustrates the distribution of survival months among patients in the dataset.
@@ -201,17 +203,12 @@ The number of cases gradually decreases in older age groups, with 389 patients a
 The youngest age groups (20-39 years) have significantly fewer cases, with only 3 patients aged 20-24 years and 64 patients aged 35-39 years.
 This distribution indicates that the majority of the study population consists of older adults, which aligns with typical cancer incidence patterns that increase with age.
 
-
-
 ```{r}
 #| label: tbl-summaryage
 #| tbl-cap: "Summary of age group distribution."
 #| echo: false
 knitr::include_graphics(here::here("results", "edafigures", "edaagesummary.png"))
 ```
-
-
-
 
 @fig-age shows this distribution indicates that the majority of the study population consists of older adults, which aligns with typical cancer incidence patterns that increase with age.
 
